@@ -1,5 +1,5 @@
 {
-  "name": "phabricator-mcp",
+  "name": "@freelancercom/phabricator-mcp",
   "version": "1.0.0",
   "description": "MCP server for Phabricator Conduit API - manage tasks, code reviews, repositories, and more",
   "type": "module",
