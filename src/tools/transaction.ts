@@ -1,0 +1,27 @@
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { ConduitClient } from '../client/conduit.js';
+import { z } from 'zod';
+
+export function registerTransactionTools(server: McpServer, client: ConduitClient) {
+  server.tool(
+    'phabricator_transaction_search',
+    'Search transactions (comments, status changes, etc.) on any Phabricator object (e.g., "D123", "T456")',
+    {
+      objectIdentifier: z.string().describe('Object ID (e.g., "D123", "T456") or PHID'),
+      constraints: z.object({
+        phids: z.array(z.string()).optional().describe('Transaction PHIDs'),
+        authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
+      }).optional().describe('Search constraints'),
+      limit: z.number().max(100).optional().describe('Maximum results (max 100)'),
+      after: z.string().optional().describe('Pagination cursor'),
+    },
+    async (params) => {
+      const { objectIdentifier, ...searchParams } = params;
+      const result = await client.call('transaction.search', {
+        objectIdentifier,
+        ...searchParams,
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+}

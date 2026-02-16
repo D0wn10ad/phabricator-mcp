@@ -9,6 +9,7 @@ import { registerPasteTools } from './paste.js';
 import { registerPhrictionTools } from './phriction.js';
 import { registerPhidTools } from './phid.js';
 import { registerPhameTools } from './phame.js';
+import { registerTransactionTools } from './transaction.js';
 
 export function registerAllTools(server: McpServer, client: ConduitClient) {
   registerManiphestTools(server, client);
@@ -20,4 +21,5 @@ export function registerAllTools(server: McpServer, client: ConduitClient) {
   registerPhrictionTools(server, client);
   registerPhidTools(server, client);
   registerPhameTools(server, client);
+  registerTransactionTools(server, client);
 }

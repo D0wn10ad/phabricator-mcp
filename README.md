@@ -158,7 +158,8 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_blog_search",
       "mcp__phabricator__phabricator_blog_post_search",
       "mcp__phabricator__phabricator_phid_lookup",
-      "mcp__phabricator__phabricator_phid_query"
+      "mcp__phabricator__phabricator_phid_query",
+      "mcp__phabricator__phabricator_transaction_search"
     ]
   }
 }
@@ -232,6 +233,12 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_blog_post_edit` | Edit an existing blog post |
 | `phabricator_blog_post_add_comment` | Add a comment to a blog post |
 
+### Transactions
+
+| Tool | Description |
+|------|-------------|
+| `phabricator_transaction_search` | Search transactions (comments, status changes, etc.) on any object |
+
 ### PHID Utilities
 
 | Tool | Description |
@@ -260,6 +267,7 @@ Once connected, just ask your AI assistant to perform Phabricator tasks in natur
 - "Search for projects with 'backend' in the name"
 - "Search commits by author alice"
 - "Look up T123 and D456"
+- "Show me the comments on D6789"
 
 **Wiki & Pastes**
 - "Find wiki pages about deployment"
