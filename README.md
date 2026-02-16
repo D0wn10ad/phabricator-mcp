@@ -11,7 +11,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 ### Claude Code (CLI)
 
 ```bash
-claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp
+claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp@latest
 ```
 
 Or with environment variables (if not using `~/.arcrc`):
@@ -20,7 +20,7 @@ Or with environment variables (if not using `~/.arcrc`):
 claude mcp add --scope user phabricator \
   -e PHABRICATOR_URL=https://phabricator.example.com \
   -e PHABRICATOR_API_TOKEN=api-xxxxx \
-  -- npx @freelancercom/phabricator-mcp
+  -- npx @freelancercom/phabricator-mcp@latest
 ```
 
 The `--scope user` flag installs the server globally, making it available in all projects.
@@ -34,7 +34,7 @@ Add to your Codex config (`~/.codex/config.json`):
   "mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["@freelancercom/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp@latest"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxxxxxxxxxx"
@@ -54,7 +54,7 @@ Add to your opencode config (`~/.config/opencode/config.json`):
     "servers": {
       "phabricator": {
         "command": "npx",
-        "args": ["@freelancercom/phabricator-mcp"],
+        "args": ["@freelancercom/phabricator-mcp@latest"],
         "env": {
           "PHABRICATOR_URL": "https://phabricator.example.com",
           "PHABRICATOR_API_TOKEN": "api-xxxxxxxxxxxxx"
@@ -74,7 +74,7 @@ Add to your VS Code `settings.json`:
   "claude.mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["@freelancercom/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp@latest"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxxxxxxxxxx"
@@ -93,7 +93,7 @@ Add to your Cursor MCP config (`~/.cursor/mcp.json`):
   "mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["@freelancercom/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp@latest"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxxxxxxxxxx"
@@ -112,7 +112,7 @@ Add to your VS Code `settings.json`:
   "github.copilot.chat.mcp.servers": {
     "phabricator": {
       "command": "npx",
-      "args": ["@freelancercom/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp@latest"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxxxxxxxxxx"
@@ -124,15 +124,15 @@ Add to your VS Code `settings.json`:
 
 ## Upgrading
 
-If you installed with `npx @freelancercom/phabricator-mcp` (no version suffix), npx caches the package locally and won't automatically pick up new versions. To upgrade:
+The default install uses `@freelancercom/phabricator-mcp@latest`, which tells npx to check for updates on each run. No action needed.
+
+If you pinned a specific version (e.g. `@freelancercom/phabricator-mcp@1.0.0`) or omitted the version suffix, npx caches the package and won't pick up new versions. To upgrade:
 
 ```bash
 npx clear-npx-cache
 ```
 
-Then restart your MCP client. The next run will fetch the latest version from npm.
-
-If your config uses `@freelancercom/phabricator-mcp@latest`, npx will check for updates on each run automatically.
+Then restart your MCP client.
 
 ### Migrating from `github:freelancer/phabricator-mcp`
 
@@ -143,10 +143,10 @@ If you previously installed using the GitHub URL, update your config to use the 
 claude mcp remove phabricator -s user
 
 # Add new one
-claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp
+claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp@latest
 ```
 
-For JSON configs, replace `["github:freelancer/phabricator-mcp"]` with `["@freelancercom/phabricator-mcp"]` in your args.
+For JSON configs, replace `["github:freelancer/phabricator-mcp"]` with `["@freelancercom/phabricator-mcp@latest"]` in your args.
 
 ## Configuration
 

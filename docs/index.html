@@ -57,7 +57,7 @@
         "name": "How do I install phabricator-mcp?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "For Claude Code CLI, run: claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp. For other editors, add the MCP server configuration to your settings file. The server reads credentials from ~/.arcrc or environment variables."
+          "text": "For Claude Code CLI, run: claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp@latest. For other editors, add the MCP server configuration to your settings file. The server reads credentials from ~/.arcrc or environment variables."
         }
       },
       {
@@ -298,8 +298,8 @@
           <div class="terminal-dot green"></div>
         </div>
         <div class="terminal-body">
-          <div><span class="prompt">$</span> <span class="cmd">claude</span> <span class="flag">mcp add</span> <span class="flag">--scope user</span> <span class="arg">phabricator</span> <span class="flag">--</span> <span class="cmd">npx</span> <span class="arg">@freelancercom/phabricator-mcp</span></div>
-          <div class="output" style="margin-top: 0.5rem;">Added stdio MCP server phabricator with command: npx @freelancercom/phabricator-mcp</div>
+          <div><span class="prompt">$</span> <span class="cmd">claude</span> <span class="flag">mcp add</span> <span class="flag">--scope user</span> <span class="arg">phabricator</span> <span class="flag">--</span> <span class="cmd">npx</span> <span class="arg">@freelancercom/phabricator-mcp@latest</span></div>
+          <div class="output" style="margin-top: 0.5rem;">Added stdio MCP server phabricator with command: npx @freelancercom/phabricator-mcp@latest</div>
           <div style="margin-top: 0.75rem;"><span class="prompt">$</span> <span class="cmd">claude</span></div>
           <div class="output" style="margin-top: 0.5rem;">
 > show my open diffs<br>
@@ -334,12 +334,12 @@ You have 3 open revisions:<br>
         </div>
 
         <div class="tab-content content-claude">
-          <pre><code>claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp</code></pre>
+          <pre><code>claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp@latest</code></pre>
           <p>With env vars:</p>
           <pre><code>claude mcp add --scope user phabricator \
   -e PHABRICATOR_URL=https://phabricator.example.com \
   -e PHABRICATOR_API_TOKEN=api-xxxxx \
-  -- npx @freelancercom/phabricator-mcp</code></pre>
+  -- npx @freelancercom/phabricator-mcp@latest</code></pre>
         </div>
 
         <div class="tab-content content-codex">
@@ -348,7 +348,7 @@ You have 3 open revisions:<br>
   "mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["@freelancercom/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp@latest"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxx"
@@ -365,7 +365,7 @@ You have 3 open revisions:<br>
     "servers": {
       "phabricator": {
         "command": "npx",
-        "args": ["@freelancercom/phabricator-mcp"],
+        "args": ["@freelancercom/phabricator-mcp@latest"],
         "env": {
           "PHABRICATOR_URL": "https://phabricator.example.com",
           "PHABRICATOR_API_TOKEN": "api-xxxxx"
@@ -382,7 +382,7 @@ You have 3 open revisions:<br>
   "claude.mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["@freelancercom/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp@latest"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxx"
@@ -398,7 +398,7 @@ You have 3 open revisions:<br>
   "mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["@freelancercom/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp@latest"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxx"
@@ -414,7 +414,7 @@ You have 3 open revisions:<br>
   "github.copilot.chat.mcp.servers": {
     "phabricator": {
       "command": "npx",
-      "args": ["@freelancercom/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp@latest"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxx"
@@ -488,20 +488,20 @@ You have 3 open revisions:<br>
 
       <h2>Upgrading</h2>
 
-      <p>If you installed with <code>npx @freelancercom/phabricator-mcp</code> (no version suffix), npx caches the package and won't automatically pick up new versions. To upgrade:</p>
+      <p>The default install uses <code>@freelancercom/phabricator-mcp@latest</code>, which tells npx to check for updates on each run. No action needed.</p>
+
+      <p>If you pinned a specific version (e.g. <code>@freelancercom/phabricator-mcp@1.0.0</code>) or omitted the version suffix, npx caches the package and won't pick up new versions. To upgrade:</p>
 
       <pre><code>npx clear-npx-cache</code></pre>
 
-      <p>Then restart your MCP client. The next run will fetch the latest version from npm.</p>
-
-      <p>If your config uses <code>@freelancercom/phabricator-mcp@latest</code>, npx checks for updates on each run automatically.</p>
+      <p>Then restart your MCP client.</p>
 
       <h3>Migrating from <code>github:freelancer/phabricator-mcp</code></h3>
 
-      <p>If you previously installed using the GitHub URL, update your config to use the npm package instead. Replace <code>github:freelancer/phabricator-mcp</code> with <code>@freelancercom/phabricator-mcp</code> in your args. For Claude Code:</p>
+      <p>If you previously installed using the GitHub URL, update your config to use the npm package instead. Replace <code>github:freelancer/phabricator-mcp</code> with <code>@freelancercom/phabricator-mcp@latest</code> in your args. For Claude Code:</p>
 
       <pre><code>claude mcp remove phabricator -s user
-claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp</code></pre>
+claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp@latest</code></pre>
 
       <h2>Configuration</h2>
 
