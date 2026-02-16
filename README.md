@@ -11,7 +11,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 ### Claude Code (CLI)
 
 ```bash
-claude mcp add --scope user phabricator -- npx github:freelancer/phabricator-mcp
+claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp
 ```
 
 Or with environment variables (if not using `~/.arcrc`):
@@ -20,7 +20,7 @@ Or with environment variables (if not using `~/.arcrc`):
 claude mcp add --scope user phabricator \
   -e PHABRICATOR_URL=https://phabricator.example.com \
   -e PHABRICATOR_API_TOKEN=api-xxxxx \
-  -- npx github:freelancer/phabricator-mcp
+  -- npx @freelancercom/phabricator-mcp
 ```
 
 The `--scope user` flag installs the server globally, making it available in all projects.
@@ -34,7 +34,7 @@ Add to your Codex config (`~/.codex/config.json`):
   "mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["github:freelancer/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxxxxxxxxxx"
@@ -54,7 +54,7 @@ Add to your opencode config (`~/.config/opencode/config.json`):
     "servers": {
       "phabricator": {
         "command": "npx",
-        "args": ["github:freelancer/phabricator-mcp"],
+        "args": ["@freelancercom/phabricator-mcp"],
         "env": {
           "PHABRICATOR_URL": "https://phabricator.example.com",
           "PHABRICATOR_API_TOKEN": "api-xxxxxxxxxxxxx"
@@ -74,7 +74,7 @@ Add to your VS Code `settings.json`:
   "claude.mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["github:freelancer/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxxxxxxxxxx"
@@ -93,7 +93,7 @@ Add to your Cursor MCP config (`~/.cursor/mcp.json`):
   "mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["github:freelancer/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxxxxxxxxxx"
@@ -112,7 +112,7 @@ Add to your VS Code `settings.json`:
   "github.copilot.chat.mcp.servers": {
     "phabricator": {
       "command": "npx",
-      "args": ["github:freelancer/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxxxxxxxxxx"

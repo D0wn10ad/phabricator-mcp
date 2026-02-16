@@ -57,7 +57,7 @@
         "name": "How do I install phabricator-mcp?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "For Claude Code CLI, run: claude mcp add --scope user phabricator -- npx github:freelancer/phabricator-mcp. For other editors, add the MCP server configuration to your settings file. The server reads credentials from ~/.arcrc or environment variables."
+          "text": "For Claude Code CLI, run: claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp. For other editors, add the MCP server configuration to your settings file. The server reads credentials from ~/.arcrc or environment variables."
         }
       },
       {
@@ -298,8 +298,8 @@
           <div class="terminal-dot green"></div>
         </div>
         <div class="terminal-body">
-          <div><span class="prompt">$</span> <span class="cmd">claude</span> <span class="flag">mcp add</span> <span class="flag">--scope user</span> <span class="arg">phabricator</span> <span class="flag">--</span> <span class="cmd">npx</span> <span class="arg">github:freelancer/phabricator-mcp</span></div>
-          <div class="output" style="margin-top: 0.5rem;">Added stdio MCP server phabricator with command: npx github:freelancer/phabricator-mcp</div>
+          <div><span class="prompt">$</span> <span class="cmd">claude</span> <span class="flag">mcp add</span> <span class="flag">--scope user</span> <span class="arg">phabricator</span> <span class="flag">--</span> <span class="cmd">npx</span> <span class="arg">@freelancercom/phabricator-mcp</span></div>
+          <div class="output" style="margin-top: 0.5rem;">Added stdio MCP server phabricator with command: npx @freelancercom/phabricator-mcp</div>
           <div style="margin-top: 0.75rem;"><span class="prompt">$</span> <span class="cmd">claude</span></div>
           <div class="output" style="margin-top: 0.5rem;">
 > show my open diffs<br>
@@ -334,12 +334,12 @@ You have 3 open revisions:<br>
         </div>
 
         <div class="tab-content content-claude">
-          <pre><code>claude mcp add --scope user phabricator -- npx github:freelancer/phabricator-mcp</code></pre>
+          <pre><code>claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp</code></pre>
           <p>With env vars:</p>
           <pre><code>claude mcp add --scope user phabricator \
   -e PHABRICATOR_URL=https://phabricator.example.com \
   -e PHABRICATOR_API_TOKEN=api-xxxxx \
-  -- npx github:freelancer/phabricator-mcp</code></pre>
+  -- npx @freelancercom/phabricator-mcp</code></pre>
         </div>
 
         <div class="tab-content content-codex">
@@ -348,7 +348,7 @@ You have 3 open revisions:<br>
   "mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["github:freelancer/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxx"
@@ -365,7 +365,7 @@ You have 3 open revisions:<br>
     "servers": {
       "phabricator": {
         "command": "npx",
-        "args": ["github:freelancer/phabricator-mcp"],
+        "args": ["@freelancercom/phabricator-mcp"],
         "env": {
           "PHABRICATOR_URL": "https://phabricator.example.com",
           "PHABRICATOR_API_TOKEN": "api-xxxxx"
@@ -382,7 +382,7 @@ You have 3 open revisions:<br>
   "claude.mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["github:freelancer/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxx"
@@ -398,7 +398,7 @@ You have 3 open revisions:<br>
   "mcpServers": {
     "phabricator": {
       "command": "npx",
-      "args": ["github:freelancer/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxx"
@@ -414,7 +414,7 @@ You have 3 open revisions:<br>
   "github.copilot.chat.mcp.servers": {
     "phabricator": {
       "command": "npx",
-      "args": ["github:freelancer/phabricator-mcp"],
+      "args": ["@freelancercom/phabricator-mcp"],
       "env": {
         "PHABRICATOR_URL": "https://phabricator.example.com",
         "PHABRICATOR_API_TOKEN": "api-xxxxx"
