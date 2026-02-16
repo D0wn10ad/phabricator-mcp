@@ -486,6 +486,23 @@ You have 3 open revisions:<br>
         </div>
       </div>
 
+      <h2>Upgrading</h2>
+
+      <p>If you installed with <code>npx @freelancercom/phabricator-mcp</code> (no version suffix), npx caches the package and won't automatically pick up new versions. To upgrade:</p>
+
+      <pre><code>npx clear-npx-cache</code></pre>
+
+      <p>Then restart your MCP client. The next run will fetch the latest version from npm.</p>
+
+      <p>If your config uses <code>@freelancercom/phabricator-mcp@latest</code>, npx checks for updates on each run automatically.</p>
+
+      <h3>Migrating from <code>github:freelancer/phabricator-mcp</code></h3>
+
+      <p>If you previously installed using the GitHub URL, update your config to use the npm package instead. Replace <code>github:freelancer/phabricator-mcp</code> with <code>@freelancercom/phabricator-mcp</code> in your args. For Claude Code:</p>
+
+      <pre><code>claude mcp remove phabricator -s user
+claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp</code></pre>
+
       <h2>Configuration</h2>
 
       <p>The server reads your Phabricator credentials from <code>~/.arcrc</code> automatically. If you've already run <code>arc install-certificate</code>, you're done.</p>

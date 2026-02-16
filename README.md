@@ -122,6 +122,32 @@ Add to your VS Code `settings.json`:
 }
 ```
 
+## Upgrading
+
+If you installed with `npx @freelancercom/phabricator-mcp` (no version suffix), npx caches the package locally and won't automatically pick up new versions. To upgrade:
+
+```bash
+npx clear-npx-cache
+```
+
+Then restart your MCP client. The next run will fetch the latest version from npm.
+
+If your config uses `@freelancercom/phabricator-mcp@latest`, npx will check for updates on each run automatically.
+
+### Migrating from `github:freelancer/phabricator-mcp`
+
+If you previously installed using the GitHub URL, update your config to use the npm package instead:
+
+```bash
+# Remove old server
+claude mcp remove phabricator -s user
+
+# Add new one
+claude mcp add --scope user phabricator -- npx @freelancercom/phabricator-mcp
+```
+
+For JSON configs, replace `["github:freelancer/phabricator-mcp"]` with `["@freelancercom/phabricator-mcp"]` in your args.
+
 ## Configuration
 
 The server automatically reads configuration from `~/.arcrc` (created by [Arcanist](https://secure.phabricator.com/book/phabricator/article/arcanist/)). No additional configuration is needed if you've already set up `arc`.
