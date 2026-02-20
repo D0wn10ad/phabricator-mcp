@@ -185,7 +185,8 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_blog_post_search",
       "mcp__phabricator__phabricator_phid_lookup",
       "mcp__phabricator__phabricator_phid_query",
-      "mcp__phabricator__phabricator_transaction_search"
+      "mcp__phabricator__phabricator_transaction_search",
+      "mcp__phabricator__phabricator_version"
     ]
   }
 }
@@ -271,6 +272,12 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 |------|-------------|
 | `phabricator_phid_lookup` | Look up PHIDs by name (e.g., "T123", "@username") |
 | `phabricator_phid_query` | Get details about PHIDs |
+
+### Server
+
+| Tool | Description |
+|------|-------------|
+| `phabricator_version` | Get the version of the running phabricator-mcp server |
 
 ## Usage
 
