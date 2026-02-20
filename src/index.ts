@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { loadConfig } from './config.js';
 import { ConduitClient } from './client/conduit.js';
 import { registerAllTools } from './tools/index.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf-8'));
 
 async function main() {
   const config = loadConfig();
@@ -11,7 +17,7 @@ async function main() {
 
   const server = new McpServer({
     name: 'phabricator',
-    version: '1.0.0',
+    version: pkg.version,
   });
 
   registerAllTools(server, client);

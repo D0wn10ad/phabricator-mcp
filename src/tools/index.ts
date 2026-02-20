@@ -1,5 +1,8 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ConduitClient } from '../client/conduit.js';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { registerManiphestTools } from './maniphest.js';
 import { registerDifferentialTools } from './differential.js';
 import { registerDiffusionTools } from './diffusion.js';
@@ -11,7 +14,19 @@ import { registerPhidTools } from './phid.js';
 import { registerPhameTools } from './phame.js';
 import { registerTransactionTools } from './transaction.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf-8'));
+
 export function registerAllTools(server: McpServer, client: ConduitClient) {
+  server.tool(
+    'phabricator_version',
+    'Get the version of the running phabricator-mcp server',
+    {},
+    async () => ({
+      content: [{ type: 'text', text: pkg.version }],
+    }),
+  );
+
   registerManiphestTools(server, client);
   registerDifferentialTools(server, client);
   registerDiffusionTools(server, client);
