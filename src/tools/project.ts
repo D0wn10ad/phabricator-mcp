@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ConduitClient } from '../client/conduit.js';
 import { z } from 'zod';
+import { jsonCoerce } from './coerce.js';
 
 export function registerProjectTools(server: McpServer, client: ConduitClient) {
   // Search projects
@@ -9,8 +10,8 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
     'Search Phabricator projects',
     {
       queryKey: z.string().optional().describe('Built-in query: "all", "active", "joined"'),
-      constraints: z.object({
-        ids: z.array(z.number()).optional().describe('Project IDs'),
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('Project IDs'),
         phids: z.array(z.string()).optional().describe('Project PHIDs'),
         slugs: z.array(z.string()).optional().describe('Project slugs'),
         name: z.string().optional().describe('Exact name match'),
@@ -20,14 +21,14 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         isMilestone: z.boolean().optional().describe('Filter milestones'),
         isRoot: z.boolean().optional().describe('Filter root projects'),
         query: z.string().optional().describe('Full-text search query'),
-      }).optional().describe('Search constraints'),
-      attachments: z.object({
+      })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
         members: z.boolean().optional().describe('Include members'),
         watchers: z.boolean().optional().describe('Include watchers'),
         ancestors: z.boolean().optional().describe('Include ancestors'),
-      }).optional().describe('Data attachments'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -88,13 +89,13 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
     'phabricator_column_search',
     'Search project workboard columns',
     {
-      constraints: z.object({
-        ids: z.array(z.number()).optional().describe('Column IDs'),
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('Column IDs'),
         phids: z.array(z.string()).optional().describe('Column PHIDs'),
         projects: z.array(z.string()).optional().describe('Project PHIDs'),
-      }).optional().describe('Search constraints'),
+      })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
-      limit: z.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ConduitClient } from '../client/conduit.js';
 import { z } from 'zod';
+import { jsonCoerce } from './coerce.js';
 
 export function registerPasteTools(server: McpServer, client: ConduitClient) {
   // Search pastes
@@ -9,18 +10,18 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
     'Search Phabricator pastes',
     {
       queryKey: z.string().optional().describe('Built-in query: "all", "authored"'),
-      constraints: z.object({
-        ids: z.array(z.number()).optional().describe('Paste IDs'),
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('Paste IDs'),
         phids: z.array(z.string()).optional().describe('Paste PHIDs'),
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
         languages: z.array(z.string()).optional().describe('Languages'),
         query: z.string().optional().describe('Full-text search query'),
-      }).optional().describe('Search constraints'),
-      attachments: z.object({
+      })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
         content: z.boolean().optional().describe('Include paste content'),
-      }).optional().describe('Data attachments'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

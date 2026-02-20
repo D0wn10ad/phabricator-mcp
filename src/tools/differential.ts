@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ConduitClient } from '../client/conduit.js';
 import { z } from 'zod';
+import { jsonCoerce } from './coerce.js';
 
 export function registerDifferentialTools(server: McpServer, client: ConduitClient) {
   // Search revisions
@@ -9,21 +10,21 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     'Search Differential revisions (code reviews)',
     {
       queryKey: z.string().optional().describe('Built-in query: "all", "active", "authored", "waiting"'),
-      constraints: z.object({
-        ids: z.array(z.number()).optional().describe('Revision IDs'),
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('Revision IDs'),
         phids: z.array(z.string()).optional().describe('Revision PHIDs'),
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
         reviewerPHIDs: z.array(z.string()).optional().describe('Reviewer PHIDs'),
         repositoryPHIDs: z.array(z.string()).optional().describe('Repository PHIDs'),
         statuses: z.array(z.string()).optional().describe('Statuses: needs-review, needs-revision, accepted, published, abandoned, changes-planned'),
-      }).optional().describe('Search constraints'),
-      attachments: z.object({
+      })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
         reviewers: z.boolean().optional().describe('Include reviewers'),
         subscribers: z.boolean().optional().describe('Include subscribers'),
         projects: z.boolean().optional().describe('Include projects'),
-      }).optional().describe('Data attachments'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -92,7 +93,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     'phabricator_get_raw_diff',
     'Get the raw diff/patch content for a Differential diff by diff ID. Use phabricator_diff_search to find the diff ID from a revision PHID first.',
     {
-      diffID: z.number().describe('The diff ID (numeric, e.g., 1392561). Use phabricator_diff_search to find this from a revision.'),
+      diffID: z.coerce.number().describe('The diff ID (numeric, e.g., 1392561). Use phabricator_diff_search to find this from a revision.'),
     },
     async (params) => {
       const result = await client.call<string>('differential.getrawdiff', {
@@ -107,15 +108,15 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     'phabricator_diff_search',
     'Search Differential diffs',
     {
-      constraints: z.object({
-        ids: z.array(z.number()).optional().describe('Diff IDs'),
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('Diff IDs'),
         phids: z.array(z.string()).optional().describe('Diff PHIDs'),
         revisionPHIDs: z.array(z.string()).optional().describe('Revision PHIDs'),
-      }).optional().describe('Search constraints'),
-      attachments: z.object({
+      })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
         commits: z.boolean().optional().describe('Include commit info'),
-      }).optional().describe('Data attachments'),
-      limit: z.number().max(100).optional().describe('Maximum results'),
+      })).optional().describe('Data attachments'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

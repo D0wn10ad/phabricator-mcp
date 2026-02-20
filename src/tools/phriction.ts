@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ConduitClient } from '../client/conduit.js';
 import { z } from 'zod';
+import { jsonCoerce } from './coerce.js';
 
 export function registerPhrictionTools(server: McpServer, client: ConduitClient) {
   // Search wiki documents
@@ -9,19 +10,19 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
     'Search Phriction wiki documents',
     {
       queryKey: z.string().optional().describe('Built-in query: "all", "active"'),
-      constraints: z.object({
-        ids: z.array(z.number()).optional().describe('Document IDs'),
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('Document IDs'),
         phids: z.array(z.string()).optional().describe('Document PHIDs'),
         paths: z.array(z.string()).optional().describe('Document paths'),
         ancestorPaths: z.array(z.string()).optional().describe('Ancestor paths to search under'),
         statuses: z.array(z.string()).optional().describe('Document statuses'),
         query: z.string().optional().describe('Full-text search query'),
-      }).optional().describe('Search constraints'),
-      attachments: z.object({
+      })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
         content: z.boolean().optional().describe('Include document content'),
-      }).optional().describe('Data attachments'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

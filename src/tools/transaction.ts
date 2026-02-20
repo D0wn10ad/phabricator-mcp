@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ConduitClient } from '../client/conduit.js';
 import { z } from 'zod';
+import { jsonCoerce } from './coerce.js';
 
 export function registerTransactionTools(server: McpServer, client: ConduitClient) {
   server.tool(
@@ -8,11 +9,11 @@ export function registerTransactionTools(server: McpServer, client: ConduitClien
     'Search transactions (comments, status changes, etc.) on any Phabricator object (e.g., "D123", "T456")',
     {
       objectIdentifier: z.string().describe('Object ID (e.g., "D123", "T456") or PHID'),
-      constraints: z.object({
+      constraints: jsonCoerce(z.object({
         phids: z.array(z.string()).optional().describe('Transaction PHIDs'),
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
-      }).optional().describe('Search constraints'),
-      limit: z.number().max(100).optional().describe('Maximum results (max 100)'),
+      })).optional().describe('Search constraints'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

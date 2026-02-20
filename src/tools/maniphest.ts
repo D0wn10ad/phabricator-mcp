@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ConduitClient } from '../client/conduit.js';
 import { z } from 'zod';
+import { jsonCoerce } from './coerce.js';
 
 export function registerManiphestTools(server: McpServer, client: ConduitClient) {
   // Search tasks
@@ -9,25 +10,25 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
     'Search Maniphest tasks with optional filters',
     {
       queryKey: z.string().optional().describe('Built-in query: "all", "open", "authored", "assigned"'),
-      constraints: z.object({
-        ids: z.array(z.number()).optional().describe('Task IDs to search for'),
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('Task IDs to search for'),
         phids: z.array(z.string()).optional().describe('Task PHIDs to search for'),
         assigned: z.array(z.string()).optional().describe('Assigned user PHIDs'),
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
         statuses: z.array(z.string()).optional().describe('Task statuses: open, resolved, wontfix, invalid, spite, duplicate'),
-        priorities: z.array(z.number()).optional().describe('Priority levels'),
+        priorities: z.array(z.coerce.number()).optional().describe('Priority levels'),
         subtypes: z.array(z.string()).optional().describe('Task subtypes'),
         columnPHIDs: z.array(z.string()).optional().describe('Workboard column PHIDs'),
         projectPHIDs: z.array(z.string()).optional().describe('Project PHIDs (tasks tagged with these projects)'),
         query: z.string().optional().describe('Full-text search query'),
-      }).optional().describe('Search constraints'),
-      attachments: z.object({
+      })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
         columns: z.boolean().optional().describe('Include workboard column info'),
         projects: z.boolean().optional().describe('Include project info'),
         subscribers: z.boolean().optional().describe('Include subscriber info'),
-      }).optional().describe('Data attachments to include'),
+      })).optional().describe('Data attachments to include'),
       order: z.string().optional().describe('Result order: "priority", "updated", "newest", "oldest"'),
-      limit: z.number().max(100).optional().describe('Maximum results (max 100)'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for pagination'),
     },
     async (params) => {

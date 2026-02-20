@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ConduitClient } from '../client/conduit.js';
 import { z } from 'zod';
+import { jsonCoerce } from './coerce.js';
 
 export function registerPhameTools(server: McpServer, client: ConduitClient) {
   // Search blogs
@@ -9,13 +10,13 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
     'Search Phame blogs',
     {
       queryKey: z.string().optional().describe('Built-in query: "all", "active"'),
-      constraints: z.object({
-        ids: z.array(z.number()).optional().describe('Blog IDs'),
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('Blog IDs'),
         phids: z.array(z.string()).optional().describe('Blog PHIDs'),
         query: z.string().optional().describe('Full-text search query'),
-      }).optional().describe('Search constraints'),
+      })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
-      limit: z.number().max(100).optional().describe('Maximum results (max 100)'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for pagination'),
     },
     async (params) => {
@@ -30,15 +31,15 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
     'Search Phame blog posts',
     {
       queryKey: z.string().optional().describe('Built-in query: "all", "live"'),
-      constraints: z.object({
-        ids: z.array(z.number()).optional().describe('Post IDs'),
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('Post IDs'),
         phids: z.array(z.string()).optional().describe('Post PHIDs'),
         blogPHIDs: z.array(z.string()).optional().describe('Filter by blog PHIDs'),
         visibility: z.array(z.string()).optional().describe('Visibility: "published", "draft", "archived"'),
         query: z.string().optional().describe('Full-text search query'),
-      }).optional().describe('Search constraints'),
+      })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
-      limit: z.number().max(100).optional().describe('Maximum results (max 100)'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for pagination'),
     },
     async (params) => {

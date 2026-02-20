@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ConduitClient } from '../client/conduit.js';
 import { z } from 'zod';
+import { jsonCoerce } from './coerce.js';
 
 export function registerUserTools(server: McpServer, client: ConduitClient) {
   // Get current user
@@ -20,8 +21,8 @@ export function registerUserTools(server: McpServer, client: ConduitClient) {
     'Search Phabricator users',
     {
       queryKey: z.string().optional().describe('Built-in query: "all", "active", "approval"'),
-      constraints: z.object({
-        ids: z.array(z.number()).optional().describe('User IDs'),
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('User IDs'),
         phids: z.array(z.string()).optional().describe('User PHIDs'),
         usernames: z.array(z.string()).optional().describe('Usernames'),
         nameLike: z.string().optional().describe('Name prefix search'),
@@ -30,12 +31,12 @@ export function registerUserTools(server: McpServer, client: ConduitClient) {
         isBot: z.boolean().optional().describe('Filter by bot status'),
         isMailingList: z.boolean().optional().describe('Filter by mailing list status'),
         query: z.string().optional().describe('Full-text search query'),
-      }).optional().describe('Search constraints'),
-      attachments: z.object({
+      })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
         availability: z.boolean().optional().describe('Include availability info'),
-      }).optional().describe('Data attachments'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
