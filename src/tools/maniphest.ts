@@ -184,7 +184,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         transactions.push({ type: 'subtasks.remove', value: params.removeSubtaskPHIDs });
       }
       if (params.columnPHID !== undefined) {
-        transactions.push({ type: 'column', value: [params.columnPHID] });
+        transactions.push({ type: 'column', value: [{ columnPHID: params.columnPHID }] });
       }
       if (params.comment !== undefined) {
         transactions.push({ type: 'comment', value: params.comment });
