@@ -290,6 +290,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | Tool | Description |
 |------|-------------|
 | `phabricator_blog_search` | Search Phame blogs |
+| `phabricator_blog_edit` | Create or edit a Phame blog |
 | `phabricator_blog_post_search` | Search blog posts |
 | `phabricator_blog_post_create` | Create a new blog post |
 | `phabricator_blog_post_edit` | Edit an existing blog post |

@@ -33,6 +33,70 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
     },
   );
 
+  // Edit a blog
+  server.tool(
+    'phabricator_blog_edit',
+    'Create or edit a Phame blog. Omit objectIdentifier to create a new blog (name is required for creation).',
+    {
+      objectIdentifier: z.string().optional().describe('Blog PHID or ID. Omit to create a new blog.'),
+      name: z.string().optional().describe('Blog name'),
+      subtitle: z.string().optional().describe('Blog subtitle'),
+      description: z.string().optional().describe('Blog description (Remarkup)'),
+      fullDomain: z.string().optional().describe('Custom full domain for the blog'),
+      parentSite: z.string().optional().describe('Parent site name'),
+      parentDomain: z.string().optional().describe('Parent domain URL'),
+      status: z.string().optional().describe('Blog status'),
+      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
+      removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
+    },
+    async (params) => {
+      const transactions: Array<{ type: string; value: unknown }> = [];
+
+      if (params.name !== undefined) {
+        transactions.push({ type: 'name', value: params.name });
+      }
+      if (params.subtitle !== undefined) {
+        transactions.push({ type: 'subtitle', value: params.subtitle });
+      }
+      if (params.description !== undefined) {
+        transactions.push({ type: 'description', value: params.description });
+      }
+      if (params.fullDomain !== undefined) {
+        transactions.push({ type: 'fullDomain', value: params.fullDomain });
+      }
+      if (params.parentSite !== undefined) {
+        transactions.push({ type: 'parentSite', value: params.parentSite });
+      }
+      if (params.parentDomain !== undefined) {
+        transactions.push({ type: 'parentDomain', value: params.parentDomain });
+      }
+      if (params.status !== undefined) {
+        transactions.push({ type: 'status', value: params.status });
+      }
+      if (params.addSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
+      }
+      if (params.removeSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
+      }
+      if (params.comment !== undefined) {
+        transactions.push({ type: 'comment', value: params.comment });
+      }
+
+      if (transactions.length === 0) {
+        return { content: [{ type: 'text', text: 'No changes specified' }] };
+      }
+
+      const apiParams: Record<string, unknown> = { transactions };
+      if (params.objectIdentifier !== undefined) {
+        apiParams.objectIdentifier = params.objectIdentifier;
+      }
+      const result = await client.call('phame.blog.edit', apiParams);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
   // Search blog posts
   server.tool(
     'phabricator_blog_post_search',

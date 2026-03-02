@@ -14,7 +14,7 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
         ids: z.array(z.coerce.number()).optional().describe('Room IDs'),
         phids: z.array(z.string()).optional().describe('Room PHIDs'),
         participants: z.array(z.string()).optional().describe('Participant user PHIDs'),
-        query: z.string().optional().describe('Full-text search query'),
+        fulltext: z.string().optional().describe('Search for rooms containing these words'),
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
