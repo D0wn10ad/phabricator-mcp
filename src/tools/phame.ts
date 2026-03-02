@@ -38,7 +38,7 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
         ids: z.array(z.coerce.number()).optional().describe('Post IDs'),
         phids: z.array(z.string()).optional().describe('Post PHIDs'),
         blogPHIDs: z.array(z.string()).optional().describe('Filter by blog PHIDs'),
-        visibility: z.array(z.coerce.number()).optional().describe('Visibility filter: 1 (published), 0 (draft), 2 (archived)'),
+        visibility: z.array(z.coerce.number()).optional().describe('Visibility: 1 (published), 0 (draft), 2 (archived). Note: use these numeric codes in search; use string names like "published" in create/edit.'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
@@ -64,6 +64,7 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       blogPHID: z.string().describe('PHID of the blog to post to'),
       subtitle: z.string().optional().describe('Post subtitle'),
       visibility: z.string().optional().describe('Visibility: "published", "draft", "archived" (default: draft)'),
+      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [
@@ -77,6 +78,9 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       }
       if (params.visibility !== undefined) {
         transactions.push({ type: 'visibility', value: params.visibility });
+      }
+      if (params.addSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
       }
 
       const result = await client.call('phame.post.edit', { transactions });
