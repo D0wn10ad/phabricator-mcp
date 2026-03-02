@@ -27,8 +27,8 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         modifiedEnd: z.coerce.number().optional().describe('Modified before (epoch timestamp)'),
         parentIDs: z.array(z.coerce.number()).optional().describe('Parent task IDs'),
         subtaskIDs: z.array(z.coerce.number()).optional().describe('Subtask IDs'),
-        hasParents: z.boolean().optional().describe('Filter to tasks that have parent tasks'),
-        hasSubtasks: z.boolean().optional().describe('Filter to tasks that have subtasks'),
+        hasParents: z.boolean().optional().describe('Filter to tasks that have open parent tasks'),
+        hasSubtasks: z.boolean().optional().describe('Filter to tasks that have open subtasks'),
         spacePHIDs: z.array(z.string()).optional().describe('Filter by Space PHIDs (for multi-space installations)'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
