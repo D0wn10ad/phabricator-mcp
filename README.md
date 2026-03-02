@@ -170,6 +170,7 @@ Add to your `~/.claude/settings.json`:
   "permissions": {
     "allow": [
       "mcp__phabricator__phabricator_task_search",
+      "mcp__phabricator__phabricator_task_custom_fields",
       "mcp__phabricator__phabricator_revision_search",
       "mcp__phabricator__phabricator_diff_search",
       "mcp__phabricator__phabricator_get_raw_diff",
@@ -204,6 +205,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_task_create` | Create a new task |
 | `phabricator_task_edit` | Edit an existing task |
 | `phabricator_task_add_comment` | Add a comment to a task |
+| `phabricator_task_custom_fields` | List available custom fields for tasks |
 
 ### Code Reviews (Differential)
 
@@ -288,6 +290,8 @@ Once connected, just ask your AI assistant to perform Phabricator tasks in natur
 - "Create a task titled 'Fix login bug' in project Backend"
 - "Add a comment to T12345 saying the fix is ready for review"
 - "Close task T12345"
+- "What custom fields are available for incident tasks?"
+- "Set the start date and root cause category on T12345"
 
 **Code Reviews**
 - "Show my open diffs"
