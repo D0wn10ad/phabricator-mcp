@@ -175,4 +175,21 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
+
+  // List custom fields for tasks
+  server.tool(
+    'phabricator_task_custom_fields',
+    'List available custom fields for Maniphest tasks. Returns field keys, names, types, and descriptions. Use this to discover valid keys for the customFields parameter in task_edit and task_create.',
+    {
+      subtype: z.string().optional().describe('Task subtype to filter fields for (e.g. "incident"). If omitted, returns fields for the default subtype.'),
+    },
+    async (params) => {
+      const apiParams: Record<string, unknown> = {};
+      if (params.subtype !== undefined) {
+        apiParams.subtype = params.subtype;
+      }
+      const result = await client.call('maniphest.custom.field.search', apiParams);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
 }
