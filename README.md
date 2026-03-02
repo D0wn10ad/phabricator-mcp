@@ -281,7 +281,8 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | Tool | Description |
 |------|-------------|
 | `phabricator_document_search` | Search wiki documents |
-| `phabricator_document_edit` | Create or edit a wiki document |
+| `phabricator_document_create` | Create a new wiki document |
+| `phabricator_document_edit` | Edit a wiki document title or content |
 | `phabricator_document_add_comment` | Add a comment to a wiki document |
 
 ### Blogs (Phame)
