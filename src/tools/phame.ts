@@ -174,6 +174,7 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       blogPHID: z.string().optional().describe('Move post to a different blog (PHID)'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -198,6 +199,9 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       }
       if (params.removeSubscriberPHIDs !== undefined) {
         transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
+      }
+      if (params.comment !== undefined) {
+        transactions.push({ type: 'comment', value: params.comment });
       }
 
       if (transactions.length === 0) {

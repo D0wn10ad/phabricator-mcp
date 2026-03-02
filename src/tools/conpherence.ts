@@ -52,6 +52,7 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
     'Create a new Conpherence chat room/thread',
     {
       title: z.string().describe('Thread title'),
+      topic: z.string().optional().describe('Room topic/description'),
       message: z.string().optional().describe('Initial message (supports Remarkup)'),
       participantPHIDs: z.array(z.string()).optional().describe('Participant user PHIDs to add'),
     },
@@ -60,6 +61,9 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
         { type: 'name', value: params.title },
       ];
 
+      if (params.topic !== undefined) {
+        transactions.push({ type: 'topic', value: params.topic });
+      }
       if (params.message !== undefined) {
         transactions.push({ type: 'comment', value: params.message });
       }
@@ -77,7 +81,7 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
     'phabricator_conpherence_edit',
     'Edit a Conpherence chat room/thread. Rename it or manage participants.',
     {
-      objectIdentifier: z.string().describe('Room ID or PHID'),
+      objectIdentifier: z.string().describe('Room monogram (e.g., "Z123"), numeric ID, or PHID'),
       title: z.string().optional().describe('New room title'),
       topic: z.string().optional().describe('Room topic/description'),
       addParticipantPHIDs: z.array(z.string()).optional().describe('Participant PHIDs to add'),
@@ -120,7 +124,7 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
     'phabricator_conpherence_send',
     'Send a message to a Conpherence chat room/thread',
     {
-      objectIdentifier: z.string().describe('Room ID or PHID'),
+      objectIdentifier: z.string().describe('Room monogram (e.g., "Z123"), numeric ID, or PHID'),
       message: z.string().describe('Message text (supports Remarkup)'),
     },
     async (params) => {

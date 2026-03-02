@@ -108,10 +108,10 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
   // Send build command
   server.tool(
     'phabricator_build_command',
-    'Report build status to Harbormaster. Used by external build systems to notify Phabricator of build results. Provide the build target PHID (use phabricator_build_target_search to find it).',
+    'Send a command to Harbormaster. For build targets: report status (pass/fail/work) with optional unit/lint results. For builds/buildables: send control commands (pause/resume/abort/restart).',
     {
-      buildTargetPHID: z.string().describe('Build target PHID to send the message to. Use phabricator_build_target_search to find this.'),
-      type: z.enum(['pass', 'fail', 'work']).describe('Message type: "pass" (build succeeded), "fail" (build failed), "work" (build is still running)'),
+      receiver: z.string().describe('PHID of build target, build, or buildable to send the message to'),
+      type: z.enum(['pass', 'fail', 'work', 'pause', 'resume', 'abort', 'restart']).describe('Message type: "pass"/"fail"/"work" for build targets; "pause"/"resume"/"abort"/"restart" for builds/buildables'),
       unit: jsonCoerce(z.array(z.object({
         name: z.string().describe('Test name'),
         result: z.string().describe('Result: "pass", "fail", "skip", "broken", "unsound"'),
@@ -134,7 +134,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
     },
     async (params) => {
       const apiParams: Record<string, unknown> = {
-        buildTargetPHID: params.buildTargetPHID,
+        receiver: params.receiver,
         type: params.type,
       };
       if (params.unit !== undefined) {

@@ -81,9 +81,10 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     'phabricator_repository_browse',
     'Browse a repository directory tree at a given path and commit/branch',
     {
-      path: z.string().describe('Path to browse (e.g., "/", "/src/")'),
+      path: z.string().optional().describe('Path to browse (default: "/")'),
       repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
       commit: z.string().optional().describe('Commit hash or branch name (default: HEAD)'),
+      branch: z.string().optional().describe('Branch name'),
       needValidityOnly: z.boolean().optional().describe('Only check path validity without loading the full tree'),
       limit: z.coerce.number().optional().describe('Maximum entries to return'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
@@ -101,13 +102,19 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     {
       path: z.string().describe('File path in the repository (e.g., "src/index.ts")'),
       repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
-      commit: z.string().optional().describe('Commit hash or branch name (default: HEAD)'),
+      commit: z.string().describe('Commit hash or branch name'),
+      branch: z.string().optional().describe('Branch name'),
+      timeout: z.coerce.number().optional().describe('Query timeout in seconds'),
+      byteLimit: z.coerce.number().optional().describe('Maximum file size in bytes to return'),
     },
     async (params) => {
       const result = await client.call<{ filePHID: string; tooHuge: boolean; tooSlow: boolean }>('diffusion.filecontentquery', {
         path: params.path,
         repository: params.repository,
         commit: params.commit,
+        branch: params.branch,
+        timeout: params.timeout,
+        byteLimit: params.byteLimit,
       });
       if (result.tooHuge || result.tooSlow) {
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
@@ -126,6 +133,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     'List branches in a Diffusion repository',
     {
       repository: z.string().describe('Repository callsign, short name, or PHID'),
+      branch: z.string().optional().describe('Branch name'),
       contains: z.string().optional().describe('Only branches containing this commit'),
       patterns: z.array(z.string()).optional().describe('Filter branches by glob patterns'),
       closed: z.boolean().optional().describe('Filter by open/closed status (Mercurial only)'),
@@ -144,6 +152,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     'List tags in a Diffusion repository',
     {
       repository: z.string().describe('Repository callsign, short name, or PHID'),
+      branch: z.string().optional().describe('Branch name'),
       names: z.array(z.string()).optional().describe('Filter to specific tag names'),
       commit: z.string().optional().describe('Show tags reachable from this commit'),
       needMessages: z.boolean().optional().describe('Include tag messages in results'),
@@ -159,19 +168,24 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
   // File commit history
   server.tool(
     'phabricator_repository_file_history',
-    'Get commit history for a file path in a Diffusion repository',
+    'Get commit history for a file or directory path in a Diffusion repository',
     {
-      path: z.string().describe('File path in the repository'),
+      path: z.string().describe('File or directory path in the repository'),
       repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
-      commit: z.string().optional().describe('Commit hash or branch to start from (default: HEAD)'),
+      commit: z.string().describe('Commit hash or branch to start from'),
+      branch: z.string().optional().describe('Branch name'),
       against: z.string().optional().describe('Compare against another commit'),
       needDirectChanges: z.boolean().optional().describe('Include direct change info per path entry'),
       needChildChanges: z.boolean().optional().describe('Include child change info per path entry'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      offset: z.coerce.number().optional().describe('Result offset for pagination'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (default: 100)'),
+      offset: z.coerce.number().optional().describe('Result offset for pagination (default: 0)'),
     },
     async (params) => {
-      const result = await client.call('diffusion.historyquery', params);
+      const result = await client.call('diffusion.historyquery', {
+        ...params,
+        offset: params.offset ?? 0,
+        limit: params.limit ?? 100,
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -185,6 +199,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       repository: z.string().describe('Repository callsign, short name, or PHID'),
       query: z.string().describe('Search query / pattern'),
       commit: z.string().optional().describe('Commit hash or branch (default: HEAD)'),
+      branch: z.string().optional().describe('Branch name'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
@@ -194,6 +209,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
         repository: params.repository,
         grep: params.query,
         commit: params.commit,
+        branch: params.branch,
         limit: params.limit,
         offset: params.offset,
       });
