@@ -13,7 +13,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Task IDs to search for'),
         phids: z.array(z.string()).optional().describe('Task PHIDs to search for'),
-        assigned: z.array(z.string()).optional().describe('Assigned user PHIDs'),
+        assignedPHIDs: z.array(z.string()).optional().describe('Assigned user PHIDs'),
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
         statuses: z.array(z.string()).optional().describe('Task statuses: open, resolved, wontfix, invalid, spite, duplicate'),
         priorities: z.array(z.coerce.number()).optional().describe('Priority levels'),
@@ -25,7 +25,6 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         createdEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),
         modifiedStart: z.coerce.number().optional().describe('Modified after (epoch timestamp)'),
         modifiedEnd: z.coerce.number().optional().describe('Modified before (epoch timestamp)'),
-        closerPHIDs: z.array(z.string()).optional().describe('PHIDs of users who closed the task'),
         parentIDs: z.array(z.coerce.number()).optional().describe('Parent task IDs'),
         subtaskIDs: z.array(z.coerce.number()).optional().describe('Subtask IDs'),
         hasParents: z.boolean().optional().describe('Filter to tasks that have parent tasks'),
@@ -35,7 +34,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         columns: z.boolean().optional().describe('Include workboard column info'),
         projects: z.boolean().optional().describe('Include project info'),
         subscribers: z.boolean().optional().describe('Include subscriber info'),
-        customFields: z.boolean().optional().describe('Include custom field values in results'),
+        'custom-fields': z.boolean().optional().describe('Include custom field values in results'),
       })).optional().describe('Data attachments to include'),
       order: z.string().optional().describe('Result order: "priority", "updated", "newest", "oldest"'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
@@ -64,7 +63,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       subtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs'),
       comment: z.string().optional().describe('Initial comment on the task (supports Remarkup)'),
       customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
-        'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Use the phabricator_task_custom_fields tool to discover available fields.'
+        'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Check your Phabricator Conduit console (conduit/method/maniphest.edit/) for available fields.'
       ),
     },
     async (params) => {
@@ -136,7 +135,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       columnPHID: z.string().optional().describe('Move to workboard column'),
       comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
       customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
-        'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Use the phabricator_task_custom_fields tool to discover available fields.'
+        'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Check your Phabricator Conduit console (conduit/method/maniphest.edit/) for available fields.'
       ),
     },
     async (params) => {
@@ -247,20 +246,4 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
     },
   );
 
-  // List custom fields for tasks
-  server.tool(
-    'phabricator_task_custom_fields',
-    'List available custom fields for Maniphest tasks. Returns field keys, names, types, and descriptions. Use this to discover valid keys for the customFields parameter in task_edit and task_create.',
-    {
-      subtype: z.string().optional().describe('Task subtype to filter fields for (e.g. "incident"). If omitted, returns fields for the default subtype.'),
-    },
-    async (params) => {
-      const apiParams: Record<string, unknown> = {};
-      if (params.subtype !== undefined) {
-        apiParams.subtype = params.subtype;
-      }
-      const result = await client.call('maniphest.custom.field.search', apiParams);
-      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
-    },
-  );
 }
