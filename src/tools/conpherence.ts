@@ -33,7 +33,7 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
     'phabricator_conpherence_read',
     'Read messages from a Conpherence chat room/thread. Uses conpherence.querythread (the only Conduit method that returns message content).',
     {
-      roomID: z.coerce.number().describe('Room ID'),
+      roomID: z.string().describe('Room ID (use phabricator_conpherence_search to find it)'),
       limit: z.coerce.number().max(100).optional().describe('Maximum messages to return'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
@@ -113,7 +113,7 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
     'phabricator_conpherence_send',
     'Send a message to a Conpherence chat room/thread',
     {
-      roomID: z.coerce.number().describe('Room ID'),
+      roomID: z.string().describe('Room ID or PHID'),
       message: z.string().describe('Message text (supports Remarkup)'),
     },
     async (params) => {
