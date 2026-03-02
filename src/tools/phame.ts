@@ -38,7 +38,7 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
         ids: z.array(z.coerce.number()).optional().describe('Post IDs'),
         phids: z.array(z.string()).optional().describe('Post PHIDs'),
         blogPHIDs: z.array(z.string()).optional().describe('Filter by blog PHIDs'),
-        visibility: z.array(z.string()).optional().describe('Visibility: "published", "draft", "archived"'),
+        visibility: z.array(z.coerce.number()).optional().describe('Visibility filter: 1 (published), 0 (draft), 2 (archived)'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
@@ -95,6 +95,8 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       body: z.string().optional().describe('New post body content (supports Remarkup)'),
       visibility: z.string().optional().describe('Visibility: "published", "draft", "archived"'),
       blogPHID: z.string().optional().describe('Move post to a different blog (PHID)'),
+      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
+      removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -113,6 +115,12 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       }
       if (params.blogPHID !== undefined) {
         transactions.push({ type: 'blog', value: params.blogPHID });
+      }
+      if (params.addSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
+      }
+      if (params.removeSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
       }
 
       if (transactions.length === 0) {
