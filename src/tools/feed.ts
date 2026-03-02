@@ -9,6 +9,7 @@ export function registerFeedTools(server: McpServer, client: ConduitClient) {
     'Query the Phabricator activity feed. Returns recent activity (task updates, revision changes, commits, etc.) as an object keyed by story PHID. Uses feed.query (the only Conduit method for feed data).',
     {
       filterPHIDs: z.array(z.string()).optional().describe('Only show activity involving these PHIDs (user, project, task, etc.)'),
+      view: z.enum(['data', 'text', 'html']).optional().describe('Output format: "data" (structured, default), "text" (human-readable), "html" (rendered HTML)'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for pagination (chronological key from previous results)'),
       before: z.string().optional().describe('Cursor for reverse pagination'),
