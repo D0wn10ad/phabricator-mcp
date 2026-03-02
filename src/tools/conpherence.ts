@@ -14,13 +14,15 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
         ids: z.array(z.coerce.number()).optional().describe('Room IDs'),
         phids: z.array(z.string()).optional().describe('Room PHIDs'),
         participants: z.array(z.string()).optional().describe('Participant user PHIDs'),
+        query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
         participants: z.boolean().optional().describe('Include participant details'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('conpherence.search', params);
@@ -82,6 +84,7 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
       title: z.string().optional().describe('New room title'),
       addParticipantPHIDs: z.array(z.string()).optional().describe('Participant PHIDs to add'),
       removeParticipantPHIDs: z.array(z.string()).optional().describe('Participant PHIDs to remove'),
+      comment: z.string().optional().describe('Send a message alongside the edit (supports Remarkup)'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -94,6 +97,9 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
       }
       if (params.removeParticipantPHIDs !== undefined) {
         transactions.push({ type: 'participants.remove', value: params.removeParticipantPHIDs });
+      }
+      if (params.comment !== undefined) {
+        transactions.push({ type: 'comment', value: params.comment });
       }
 
       if (transactions.length === 0) {

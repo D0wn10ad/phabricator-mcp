@@ -13,6 +13,7 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Blog IDs'),
         phids: z.array(z.string()).optional().describe('Blog PHIDs'),
+        statuses: z.array(z.string()).optional().describe('Blog statuses'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
@@ -20,7 +21,8 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Cursor for pagination'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('phame.blog.search', params);
@@ -38,6 +40,7 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
         ids: z.array(z.coerce.number()).optional().describe('Post IDs'),
         phids: z.array(z.string()).optional().describe('Post PHIDs'),
         blogPHIDs: z.array(z.string()).optional().describe('Filter by blog PHIDs'),
+        authorPHIDs: z.array(z.string()).optional().describe('Filter by author PHIDs'),
         visibility: z.array(z.coerce.number()).optional().describe('Visibility: 1 (published), 0 (draft), 2 (archived). Note: use these numeric codes in search; use string names like "published" in create/edit.'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
@@ -46,7 +49,8 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Cursor for pagination'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('phame.post.search', params);

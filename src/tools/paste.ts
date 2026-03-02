@@ -15,6 +15,7 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
         phids: z.array(z.string()).optional().describe('Paste PHIDs'),
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
         languages: z.array(z.string()).optional().describe('Languages'),
+        statuses: z.array(z.string()).optional().describe('Statuses: active, archived'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
@@ -22,7 +23,8 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('paste.search', params);
@@ -76,6 +78,7 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       status: z.string().optional().describe('Status: active or archived'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -97,6 +100,9 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       }
       if (params.removeSubscriberPHIDs !== undefined) {
         transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
+      }
+      if (params.comment !== undefined) {
+        transactions.push({ type: 'comment', value: params.comment });
       }
 
       if (transactions.length === 0) {

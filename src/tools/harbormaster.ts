@@ -22,7 +22,8 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('harbormaster.buildable.search', params);
@@ -42,13 +43,15 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         buildablePHIDs: z.array(z.string()).optional().describe('Buildable PHIDs'),
         buildPlanPHIDs: z.array(z.string()).optional().describe('Build plan PHIDs'),
         statuses: z.array(z.string()).optional().describe('Build statuses: building, passed, failed, aborted, error, paused, deadlocked'),
+        initiatorPHIDs: z.array(z.string()).optional().describe('PHIDs of users/objects that initiated the build'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
         targets: z.boolean().optional().describe('Include build targets for each build'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('harbormaster.build.search', params);
@@ -69,7 +72,8 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('harbormaster.target.search', params);
@@ -93,7 +97,8 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('harbormaster.log.search', params);
@@ -158,7 +163,8 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('harbormaster.buildplan.search', params);
