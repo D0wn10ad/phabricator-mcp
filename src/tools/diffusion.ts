@@ -85,19 +85,26 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
   // Read file content from repository
   server.tool(
     'phabricator_repository_file_content',
-    'Read file contents from a Diffusion repository at a given path and commit/branch',
+    'Read file contents from a Diffusion repository at a given path and commit/branch. Returns the file content as a base64-encoded blob. If the file is too large, returns tooHuge: true with no content.',
     {
       path: z.string().describe('File path in the repository (e.g., "src/index.ts")'),
       repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
       commit: z.string().optional().describe('Commit hash or branch name (default: HEAD)'),
     },
     async (params) => {
-      const result = await client.call('diffusion.filecontentquery', {
+      const result = await client.call<{ filePHID: string; tooHuge: boolean; tooSlow: boolean }>('diffusion.filecontentquery', {
         path: params.path,
         repository: params.repository,
         commit: params.commit,
       });
-      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+      if (result.tooHuge || result.tooSlow) {
+        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+      }
+      // Fetch actual file content using the returned filePHID
+      const fileInfo = await client.call<{ name: string; dataURI: string; byteSize: string; mimeType: string }>('file.info', {
+        phid: result.filePHID,
+      });
+      return { content: [{ type: 'text', text: JSON.stringify({ ...result, ...fileInfo }, null, 2) }] };
     },
   );
 
