@@ -75,13 +75,12 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       path: z.string().describe('Path to browse (e.g., "/", "/src/")'),
       repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
       commit: z.string().optional().describe('Commit hash or branch name (default: HEAD)'),
+      needValidityOnly: z.boolean().optional().describe('Only check path validity without loading the full tree'),
+      limit: z.coerce.number().optional().describe('Maximum entries to return'),
+      offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
     async (params) => {
-      const result = await client.call('diffusion.browsequery', {
-        path: params.path,
-        repository: params.repository,
-        commit: params.commit,
-      });
+      const result = await client.call('diffusion.browsequery', params);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -119,6 +118,8 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     {
       repository: z.string().describe('Repository callsign, short name, or PHID'),
       contains: z.string().optional().describe('Only branches containing this commit'),
+      patterns: z.array(z.string()).optional().describe('Filter branches by glob patterns'),
+      closed: z.boolean().optional().describe('Filter by open/closed status (Mercurial only)'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
@@ -134,6 +135,9 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     'List tags in a Diffusion repository',
     {
       repository: z.string().describe('Repository callsign, short name, or PHID'),
+      names: z.array(z.string()).optional().describe('Filter to specific tag names'),
+      commit: z.string().optional().describe('Show tags reachable from this commit'),
+      needMessages: z.boolean().optional().describe('Include tag messages in results'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
@@ -151,6 +155,9 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       path: z.string().describe('File path in the repository'),
       repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
       commit: z.string().optional().describe('Commit hash or branch to start from (default: HEAD)'),
+      against: z.string().optional().describe('Compare against another commit'),
+      needDirectChanges: z.boolean().optional().describe('Include direct change info per path entry'),
+      needChildChanges: z.boolean().optional().describe('Include child change info per path entry'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
@@ -181,6 +188,71 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
         limit: params.limit,
         offset: params.offset,
       });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Create or edit a repository
+  server.tool(
+    'phabricator_repository_edit',
+    'Create or edit a Diffusion repository. To create, omit objectIdentifier and provide vcs + name.',
+    {
+      objectIdentifier: z.string().optional().describe('Repository PHID, ID, callsign, or short name (omit to create new)'),
+      vcs: z.enum(['git', 'hg', 'svn']).optional().describe('Version control system (required for creation)'),
+      name: z.string().optional().describe('Repository name'),
+      callsign: z.string().optional().describe('Repository callsign (short uppercase identifier)'),
+      shortName: z.string().optional().describe('Repository short name (URL slug)'),
+      description: z.string().optional().describe('Repository description (Remarkup)'),
+      defaultBranch: z.string().optional().describe('Default branch name'),
+      status: z.enum(['active', 'inactive']).optional().describe('Repository status'),
+      addProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to add'),
+      removeProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to remove'),
+      space: z.string().optional().describe('Space PHID (for multi-space installations)'),
+    },
+    async (params) => {
+      const transactions: Array<{ type: string; value: unknown }> = [];
+
+      if (params.vcs !== undefined) {
+        transactions.push({ type: 'vcs', value: params.vcs });
+      }
+      if (params.name !== undefined) {
+        transactions.push({ type: 'name', value: params.name });
+      }
+      if (params.callsign !== undefined) {
+        transactions.push({ type: 'callsign', value: params.callsign });
+      }
+      if (params.shortName !== undefined) {
+        transactions.push({ type: 'shortName', value: params.shortName });
+      }
+      if (params.description !== undefined) {
+        transactions.push({ type: 'description', value: params.description });
+      }
+      if (params.defaultBranch !== undefined) {
+        transactions.push({ type: 'defaultBranch', value: params.defaultBranch });
+      }
+      if (params.status !== undefined) {
+        transactions.push({ type: 'status', value: params.status });
+      }
+      if (params.addProjectPHIDs !== undefined) {
+        transactions.push({ type: 'projects.add', value: params.addProjectPHIDs });
+      }
+      if (params.removeProjectPHIDs !== undefined) {
+        transactions.push({ type: 'projects.remove', value: params.removeProjectPHIDs });
+      }
+      if (params.space !== undefined) {
+        transactions.push({ type: 'space', value: params.space });
+      }
+
+      if (transactions.length === 0) {
+        return { content: [{ type: 'text', text: 'No changes specified' }] };
+      }
+
+      const apiParams: Record<string, unknown> = { transactions };
+      if (params.objectIdentifier !== undefined) {
+        apiParams.objectIdentifier = params.objectIdentifier;
+      }
+
+      const result = await client.call('diffusion.repository.edit', apiParams);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
