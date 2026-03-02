@@ -175,7 +175,7 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_revision_search",
       "mcp__phabricator__phabricator_diff_search",
       "mcp__phabricator__phabricator_diff_raw",
-      "mcp__phabricator__phabricator_changeset_search",
+      "mcp__phabricator__phabricator_revision_paths",
       "mcp__phabricator__phabricator_repository_search",
       "mcp__phabricator__phabricator_commit_search",
       "mcp__phabricator__phabricator_repository_browse",
@@ -237,7 +237,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_revision_inline_comment` | Create an inline comment on a specific line of a diff |
 | `phabricator_diff_raw` | Get the raw diff/patch content for a diff by ID |
 | `phabricator_diff_search` | Search diffs (code change snapshots within a revision) |
-| `phabricator_changeset_search` | Search changesets (individual changed files within a diff) |
+| `phabricator_revision_paths` | Get the list of changed file paths for a revision |
 
 ### Repositories (Diffusion)
 
@@ -251,6 +251,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_tag_search` | List tags in a repository |
 | `phabricator_repository_file_history` | Get commit history for a file path |
 | `phabricator_repository_code_search` | Search (grep) file contents within a repository |
+| `phabricator_repository_edit` | Create or edit a Diffusion repository |
 
 ### Users
 
