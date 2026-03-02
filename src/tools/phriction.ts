@@ -61,4 +61,21 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
+
+  // Add comment to document
+  server.tool(
+    'phabricator_document_add_comment',
+    'Add a comment to a Phriction wiki document',
+    {
+      slug: z.string().describe('Document path/slug (e.g., "projects/myproject/")'),
+      comment: z.string().describe('Comment text (supports Remarkup)'),
+    },
+    async (params) => {
+      const result = await client.call('phriction.document.edit', {
+        objectIdentifier: params.slug,
+        transactions: [{ type: 'comment', value: params.comment }],
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
 }

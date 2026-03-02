@@ -31,15 +31,15 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
   // Read messages in a thread
   server.tool(
     'phabricator_conpherence_read',
-    'Read messages from a Conpherence chat room/thread',
+    'Read messages from a Conpherence chat room/thread. Uses conpherence.querythread (the only Conduit method that returns message content).',
     {
-      id: z.coerce.number().describe('Room ID'),
+      roomID: z.coerce.number().describe('Room ID'),
       limit: z.coerce.number().max(100).optional().describe('Maximum messages to return'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
     async (params) => {
       const result = await client.call('conpherence.querythread', {
-        ids: [params.id],
+        ids: [params.roomID],
         limit: params.limit,
         offset: params.offset,
       });
@@ -69,6 +69,41 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
       }
 
       const result = await client.call('conpherence.edit', { transactions });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Edit an existing thread
+  server.tool(
+    'phabricator_conpherence_edit',
+    'Edit a Conpherence chat room/thread. Rename it or manage participants.',
+    {
+      objectIdentifier: z.string().describe('Room ID or PHID'),
+      title: z.string().optional().describe('New room title'),
+      addParticipantPHIDs: z.array(z.string()).optional().describe('Participant PHIDs to add'),
+      removeParticipantPHIDs: z.array(z.string()).optional().describe('Participant PHIDs to remove'),
+    },
+    async (params) => {
+      const transactions: Array<{ type: string; value: unknown }> = [];
+
+      if (params.title !== undefined) {
+        transactions.push({ type: 'title', value: params.title });
+      }
+      if (params.addParticipantPHIDs !== undefined) {
+        transactions.push({ type: 'participants.add', value: params.addParticipantPHIDs });
+      }
+      if (params.removeParticipantPHIDs !== undefined) {
+        transactions.push({ type: 'participants.remove', value: params.removeParticipantPHIDs });
+      }
+
+      if (transactions.length === 0) {
+        return { content: [{ type: 'text', text: 'No changes specified' }] };
+      }
+
+      const result = await client.call('conpherence.edit', {
+        objectIdentifier: params.objectIdentifier,
+        transactions,
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
