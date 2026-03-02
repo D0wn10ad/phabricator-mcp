@@ -108,12 +108,38 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
     {
       buildTargetPHID: z.string().describe('Build target PHID to send the message to. Use phabricator_build_target_search to find this.'),
       type: z.enum(['pass', 'fail', 'work']).describe('Message type: "pass" (build succeeded), "fail" (build failed), "work" (build is still running)'),
+      unit: jsonCoerce(z.array(z.object({
+        name: z.string().describe('Test name'),
+        result: z.string().describe('Result: "pass", "fail", "skip", "broken", "unsound"'),
+        namespace: z.string().optional().describe('Test namespace/group'),
+        engine: z.string().optional().describe('Test engine name'),
+        duration: z.coerce.number().optional().describe('Duration in seconds'),
+        path: z.string().optional().describe('File path related to the test'),
+        coverage: z.record(z.string(), z.string()).optional().describe('Coverage data as {path: "NNCUUUC..."} where N=not executable, C=covered, U=uncovered'),
+        details: z.string().optional().describe('Additional details or failure message'),
+      }))).optional().describe('Unit test results to report'),
+      lint: jsonCoerce(z.array(z.object({
+        name: z.string().describe('Lint message name'),
+        code: z.string().describe('Lint rule code'),
+        severity: z.string().describe('Severity: "advice", "autofix", "warning", "error", "disabled"'),
+        path: z.string().optional().describe('File path'),
+        line: z.coerce.number().optional().describe('Line number'),
+        char: z.coerce.number().optional().describe('Character offset'),
+        description: z.string().optional().describe('Lint message description'),
+      }))).optional().describe('Lint results to report'),
     },
     async (params) => {
-      const result = await client.call('harbormaster.sendmessage', {
+      const apiParams: Record<string, unknown> = {
         buildTargetPHID: params.buildTargetPHID,
         type: params.type,
-      });
+      };
+      if (params.unit !== undefined) {
+        apiParams.unit = params.unit;
+      }
+      if (params.lint !== undefined) {
+        apiParams.lint = params.lint;
+      }
+      const result = await client.call('harbormaster.sendmessage', apiParams);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
