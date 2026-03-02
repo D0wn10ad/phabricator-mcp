@@ -64,7 +64,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
 
   // Browse repository file tree
   server.tool(
-    'phabricator_file_browse',
+    'phabricator_repo_browse',
     'Browse a repository directory tree at a given path and commit/branch',
     {
       path: z.string().describe('Path to browse (e.g., "/", "/src/")'),
@@ -83,7 +83,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
 
   // Read file content from repository
   server.tool(
-    'phabricator_file_content',
+    'phabricator_repo_file_content',
     'Read file contents from a Diffusion repository at a given path and commit/branch',
     {
       path: z.string().describe('File path in the repository (e.g., "src/index.ts")'),
@@ -133,7 +133,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
 
   // File commit history
   server.tool(
-    'phabricator_file_history',
+    'phabricator_repo_file_history',
     'Get commit history for a file path in a Diffusion repository',
     {
       path: z.string().describe('File path in the repository'),
@@ -150,7 +150,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
 
   // Search file contents in repository
   server.tool(
-    'phabricator_repository_search_code',
+    'phabricator_code_search',
     'Search (grep) file contents within a Diffusion repository',
     {
       path: z.string().optional().describe('Directory path to search within (default: root)'),

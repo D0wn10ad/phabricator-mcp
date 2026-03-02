@@ -9,6 +9,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
     'phabricator_buildable_search',
     'Search Harbormaster buildables (objects that can be built, like revisions or commits)',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Buildable IDs'),
         phids: z.array(z.string()).optional().describe('Buildable PHIDs'),
@@ -31,6 +32,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
     'phabricator_build_search',
     'Search Harbormaster builds (CI/build results)',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Build IDs'),
         phids: z.array(z.string()).optional().describe('Build PHIDs'),
@@ -93,6 +95,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
     'phabricator_build_plan_search',
     'Search Harbormaster build plans (CI pipeline configurations)',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all", "active"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Build plan IDs'),
         phids: z.array(z.string()).optional().describe('Build plan PHIDs'),

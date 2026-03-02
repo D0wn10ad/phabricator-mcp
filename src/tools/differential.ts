@@ -23,6 +23,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         createdEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),
         modifiedStart: z.coerce.number().optional().describe('Modified after (epoch timestamp)'),
         modifiedEnd: z.coerce.number().optional().describe('Modified before (epoch timestamp)'),
+        query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
         reviewers: z.boolean().optional().describe('Include reviewers'),
@@ -118,7 +119,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
 
   // Get raw diff content
   server.tool(
-    'phabricator_get_raw_diff',
+    'phabricator_raw_diff',
     'Get the raw diff/patch content for a Differential diff by diff ID. Use phabricator_diff_search to find the diff ID from a revision PHID first.',
     {
       diffID: z.coerce.number().describe('The diff ID (numeric, e.g., 1392561). Use phabricator_diff_search to find this from a revision.'),
@@ -144,11 +145,29 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       attachments: jsonCoerce(z.object({
         commits: z.boolean().optional().describe('Include commit info'),
       })).optional().describe('Data attachments'),
+      order: z.string().optional().describe('Result order: "newest", "oldest"'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
       const result = await client.call('differential.diff.search', params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Search changesets (changed files within a diff)
+  server.tool(
+    'phabricator_changeset_search',
+    'Search changesets (individual changed files) within a Differential diff. Use phabricator_diff_search to find the diff PHID first.',
+    {
+      constraints: jsonCoerce(z.object({
+        diffPHIDs: z.array(z.string()).optional().describe('Diff PHIDs to list changesets for'),
+      })).optional().describe('Search constraints'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      after: z.string().optional().describe('Pagination cursor'),
+    },
+    async (params) => {
+      const result = await client.call('differential.changeset.search', params);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );

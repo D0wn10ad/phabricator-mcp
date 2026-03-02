@@ -175,15 +175,16 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_task_priority_search",
       "mcp__phabricator__phabricator_revision_search",
       "mcp__phabricator__phabricator_diff_search",
-      "mcp__phabricator__phabricator_get_raw_diff",
+      "mcp__phabricator__phabricator_raw_diff",
+      "mcp__phabricator__phabricator_changeset_search",
       "mcp__phabricator__phabricator_repository_search",
       "mcp__phabricator__phabricator_commit_search",
-      "mcp__phabricator__phabricator_file_browse",
-      "mcp__phabricator__phabricator_file_content",
+      "mcp__phabricator__phabricator_repo_browse",
+      "mcp__phabricator__phabricator_repo_file_content",
       "mcp__phabricator__phabricator_branch_search",
       "mcp__phabricator__phabricator_tag_search",
-      "mcp__phabricator__phabricator_file_history",
-      "mcp__phabricator__phabricator_repository_search_code",
+      "mcp__phabricator__phabricator_repo_file_history",
+      "mcp__phabricator__phabricator_code_search",
       "mcp__phabricator__phabricator_user_whoami",
       "mcp__phabricator__phabricator_user_search",
       "mcp__phabricator__phabricator_project_search",
@@ -236,8 +237,9 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_revision_search` | Search code review revisions |
 | `phabricator_revision_edit` | Create or edit a revision (accept, reject, add reviewers, link tasks, comment, etc.) |
 | `phabricator_revision_inline_comment` | Create an inline comment on a specific line of a diff |
-| `phabricator_get_raw_diff` | Get the raw diff/patch content for a diff by ID |
+| `phabricator_raw_diff` | Get the raw diff/patch content for a diff by ID |
 | `phabricator_diff_search` | Search diffs (code change snapshots within a revision) |
+| `phabricator_changeset_search` | Search changesets (individual changed files within a diff) |
 
 ### Repositories (Diffusion)
 
@@ -245,12 +247,12 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 |------|-------------|
 | `phabricator_repository_search` | Search repositories |
 | `phabricator_commit_search` | Search commits |
-| `phabricator_file_browse` | Browse a repository directory tree |
-| `phabricator_file_content` | Read file contents from a repository |
+| `phabricator_repo_browse` | Browse a repository directory tree |
+| `phabricator_repo_file_content` | Read file contents from a repository |
 | `phabricator_branch_search` | List branches in a repository |
 | `phabricator_tag_search` | List tags in a repository |
-| `phabricator_file_history` | Get commit history for a file path |
-| `phabricator_repository_search_code` | Search (grep) file contents within a repository |
+| `phabricator_repo_file_history` | Get commit history for a file path |
+| `phabricator_code_search` | Search (grep) file contents within a repository |
 
 ### Users
 
@@ -273,13 +275,14 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 |------|-------------|
 | `phabricator_paste_search` | Search pastes |
 | `phabricator_paste_create` | Create a paste |
+| `phabricator_paste_edit` | Edit an existing paste |
 
 ### Wiki (Phriction)
 
 | Tool | Description |
 |------|-------------|
 | `phabricator_document_search` | Search wiki documents |
-| `phabricator_document_edit` | Edit a wiki document |
+| `phabricator_document_edit` | Create or edit a wiki document |
 
 ### Blogs (Phame)
 

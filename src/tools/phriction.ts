@@ -34,7 +34,7 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
   // Edit wiki document
   server.tool(
     'phabricator_document_edit',
-    'Edit a Phriction wiki document',
+    'Create or edit a Phriction wiki document. To create, provide a new slug with title and content.',
     {
       slug: z.string().describe('Document path/slug (e.g., "projects/myproject/")'),
       title: z.string().optional().describe('Document title'),

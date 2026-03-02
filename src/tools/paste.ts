@@ -59,4 +59,43 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
+
+  // Edit paste
+  server.tool(
+    'phabricator_paste_edit',
+    'Edit an existing Phabricator paste',
+    {
+      objectIdentifier: z.string().describe('Paste PHID or ID (e.g., "P123")'),
+      title: z.string().optional().describe('New title'),
+      content: z.string().optional().describe('New content'),
+      language: z.string().optional().describe('Syntax highlighting language'),
+      status: z.string().optional().describe('Status: active or archived'),
+    },
+    async (params) => {
+      const transactions: Array<{ type: string; value: unknown }> = [];
+
+      if (params.title !== undefined) {
+        transactions.push({ type: 'title', value: params.title });
+      }
+      if (params.content !== undefined) {
+        transactions.push({ type: 'text', value: params.content });
+      }
+      if (params.language !== undefined) {
+        transactions.push({ type: 'language', value: params.language });
+      }
+      if (params.status !== undefined) {
+        transactions.push({ type: 'status', value: params.status });
+      }
+
+      if (transactions.length === 0) {
+        return { content: [{ type: 'text', text: 'No changes specified' }] };
+      }
+
+      const result = await client.call('paste.edit', {
+        objectIdentifier: params.objectIdentifier,
+        transactions,
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
 }

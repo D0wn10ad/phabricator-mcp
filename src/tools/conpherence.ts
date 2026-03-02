@@ -9,6 +9,7 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
     'phabricator_conpherence_search',
     'Search Conpherence chat rooms/threads',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all", "participant"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Room IDs'),
         phids: z.array(z.string()).optional().describe('Room PHIDs'),
