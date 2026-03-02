@@ -35,49 +35,34 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
     },
   );
 
-  // Edit wiki document
+  // Create wiki document
   server.tool(
-    'phabricator_document_edit',
-    'Create or edit a Phriction wiki document. To create, provide a new slug with title and content.',
+    'phabricator_document_create',
+    'Create a new Phriction wiki document. Uses phriction.create (the only method that can create documents).',
     {
-      objectIdentifier: z.string().describe('Document slug, PHID, or ID (e.g., "projects/myproject/")'),
-      title: z.string().optional().describe('Document title'),
-      content: z.string().optional().describe('Document content (Remarkup)'),
-      delete: z.boolean().optional().describe('Set to true to delete/archive the document'),
-      move: z.string().optional().describe('New slug to move/rename the document to'),
-      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
-      removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      slug: z.string().describe('Document slug/path (e.g., "projects/myproject/")'),
+      title: z.string().describe('Document title'),
+      content: z.string().describe('Document content (Remarkup)'),
+      description: z.string().optional().describe('Edit description/summary'),
     },
     async (params) => {
-      const transactions: Array<{ type: string; value: unknown }> = [];
+      const result = await client.call('phriction.create', params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
 
-      if (params.title !== undefined) {
-        transactions.push({ type: 'title', value: params.title });
-      }
-      if (params.content !== undefined) {
-        transactions.push({ type: 'content', value: params.content });
-      }
-      if (params.delete === true) {
-        transactions.push({ type: 'delete', value: true });
-      }
-      if (params.move !== undefined) {
-        transactions.push({ type: 'move', value: params.move });
-      }
-      if (params.addSubscriberPHIDs !== undefined) {
-        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
-      }
-      if (params.removeSubscriberPHIDs !== undefined) {
-        transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
-      }
-
-      if (transactions.length === 0) {
-        return { content: [{ type: 'text', text: 'No changes specified' }] };
-      }
-
-      const result = await client.call('phriction.document.edit', {
-        objectIdentifier: params.objectIdentifier,
-        transactions,
-      });
+  // Edit wiki document content
+  server.tool(
+    'phabricator_document_edit',
+    'Edit an existing Phriction wiki document title or content. Uses phriction.edit (the only method that can update document content).',
+    {
+      slug: z.string().describe('Document slug/path (e.g., "projects/myproject/")'),
+      title: z.string().optional().describe('New document title'),
+      content: z.string().optional().describe('New document content (Remarkup)'),
+      description: z.string().optional().describe('Edit description/summary'),
+    },
+    async (params) => {
+      const result = await client.call('phriction.edit', params);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
