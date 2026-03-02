@@ -33,15 +33,15 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
   // Read messages in a thread
   server.tool(
     'phabricator_conpherence_read',
-    'Read messages from a Conpherence chat room/thread (returned in reverse chronological order). Uses conpherence.querythread (the only Conduit method that returns message content).',
+    'Read messages from a Conpherence chat room/thread (returned in reverse chronological order). Uses conpherence.querytransaction (the only Conduit method that returns message content).',
     {
       roomID: z.coerce.number().describe('Numeric room ID (use phabricator_conpherence_search to find it)'),
       limit: z.coerce.number().max(100).optional().describe('Maximum messages to return'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
     async (params) => {
-      const result = await client.call('conpherence.querythread', {
-        ids: [params.roomID],
+      const result = await client.call('conpherence.querytransaction', {
+        roomID: params.roomID,
         limit: params.limit,
         offset: params.offset,
       });
