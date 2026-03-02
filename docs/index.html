@@ -9,7 +9,7 @@
   <link rel="canonical" href="https://freelancer.github.io/phabricator-mcp/">
 
   <meta property="og:title" content="phabricator-mcp">
-  <meta property="og:description" content="MCP server that lets AI assistants talk to Phabricator. 27 tools for tasks, diffs, repos, wikis.">
+  <meta property="og:description" content="MCP server that lets AI assistants talk to Phabricator. 28 tools for tasks, diffs, repos, wikis.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://freelancer.github.io/phabricator-mcp/">
 
@@ -20,7 +20,7 @@
     "name": "phabricator-mcp",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Cross-platform",
-    "description": "An open-source MCP (Model Context Protocol) server that connects AI assistants to Phabricator's Conduit API, enabling natural language interaction with tasks, code reviews, repositories, and wikis. Includes raw diff fetching for AI-powered code reviews and transaction history for reading comments and audit trails.",
+    "description": "An open-source MCP (Model Context Protocol) server that connects AI assistants to Phabricator's Conduit API, enabling natural language interaction with tasks, code reviews, repositories, and wikis. Includes raw diff fetching for AI-powered code reviews, transaction history for reading comments and audit trails, and custom field support for task subtypes.",
     "url": "https://freelancer.github.io/phabricator-mcp/",
     "downloadUrl": "https://github.com/freelancer/phabricator-mcp",
     "softwareVersion": "1.0.0",
@@ -41,7 +41,7 @@
         "name": "What is phabricator-mcp?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "phabricator-mcp is an open-source MCP (Model Context Protocol) server that connects AI assistants like Claude, ChatGPT, and GitHub Copilot to Phabricator. It provides 27 tools covering task management (Maniphest), code reviews (Differential) including raw diff fetching, repositories (Diffusion), wikis (Phriction), and more."
+          "text": "phabricator-mcp is an open-source MCP (Model Context Protocol) server that connects AI assistants like Claude, ChatGPT, and GitHub Copilot to Phabricator. It provides 28 tools covering task management (Maniphest), code reviews (Differential) including raw diff fetching, repositories (Diffusion), wikis (Phriction), and more."
         }
       },
       {
@@ -65,7 +65,7 @@
         "name": "What Phabricator features does phabricator-mcp support?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "phabricator-mcp provides 27 tools covering: Maniphest (task search, create, edit, comment), Differential (revision search, edit, diff search, raw diff content), Diffusion (repository and commit search), Projects (search, edit, workboard columns), Phriction (wiki search and edit), Pastes (search and create), Phame (blog search, create, edit), Transactions (comment and history search), and PHID utilities."
+          "text": "phabricator-mcp provides 28 tools covering: Maniphest (task search, create, edit, comment, custom fields), Differential (revision search, edit, diff search, raw diff content), Diffusion (repository and commit search), Projects (search, edit, workboard columns), Phriction (wiki search and edit), Pastes (search and create), Phame (blog search, create, edit), Transactions (comment and history search), and PHID utilities."
         }
       }
     ]
@@ -425,7 +425,7 @@ You have 3 open revisions:<br>
         </div>
       </div>
 
-      <h2>27 tools across 9 Phabricator apps</h2>
+      <h2>28 tools across 9 Phabricator apps</h2>
 
       <div class="tools-grid">
         <div class="tool-group">
@@ -433,6 +433,7 @@ You have 3 open revisions:<br>
           <ul>
             <li><code>task_search</code> &middot; <code>task_create</code></li>
             <li><code>task_edit</code> &middot; <code>task_add_comment</code></li>
+            <li><code>task_custom_fields</code></li>
           </ul>
         </div>
         <div class="tool-group">
@@ -522,6 +523,7 @@ PHABRICATOR_API_TOKEN=api-xxxxx</code></pre>
   "permissions": {
     "allow": [
       "mcp__phabricator__phabricator_task_search",
+      "mcp__phabricator__phabricator_task_custom_fields",
       "mcp__phabricator__phabricator_revision_search",
       "mcp__phabricator__phabricator_diff_search",
       "mcp__phabricator__phabricator_get_raw_diff",
@@ -558,7 +560,7 @@ PHABRICATOR_API_TOKEN=api-xxxxx</code></pre>
 
       <details>
         <summary>Can it modify tasks and revisions, or is it read-only?</summary>
-        <p>Both. You can search, create, edit, and comment on tasks, revisions, wiki pages, blog posts, and more. 27 tools total.</p>
+        <p>Both. You can search, create, edit, and comment on tasks (including custom fields), revisions, wiki pages, blog posts, and more. 28 tools total.</p>
       </details>
 
       <details>
