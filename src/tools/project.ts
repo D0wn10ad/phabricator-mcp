@@ -18,6 +18,8 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         members: z.array(z.string()).optional().describe('Member user PHIDs'),
         watchers: z.array(z.string()).optional().describe('Watcher user PHIDs'),
         ancestors: z.array(z.string()).optional().describe('Ancestor project PHIDs'),
+        parentPHIDs: z.array(z.string()).optional().describe('Parent project PHIDs (find subprojects)'),
+        icons: z.array(z.string()).optional().describe('Filter by project icon'),
         isMilestone: z.boolean().optional().describe('Filter milestones'),
         isRoot: z.boolean().optional().describe('Filter root projects'),
         query: z.string().optional().describe('Full-text search query'),
@@ -29,7 +31,8 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('project.search', params);
@@ -51,6 +54,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       removeMemberPHIDs: z.array(z.string()).optional().describe('Remove members'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      space: z.string().optional().describe('Space PHID (for multi-space installations)'),
       parent: z.string().optional().describe('Parent project PHID (to create as a subproject)'),
       milestone: z.string().optional().describe('Parent project PHID (to create as a milestone of that project)'),
       slug: z.string().optional().describe('Project URL slug (replaces ALL existing slugs with this one)'),
@@ -61,6 +65,9 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
 
       if (params.name !== undefined) {
         transactions.push({ type: 'name', value: params.name });
+      }
+      if (params.space !== undefined) {
+        transactions.push({ type: 'space', value: params.space });
       }
       if (params.parent !== undefined) {
         transactions.push({ type: 'parent', value: params.parent });
@@ -125,7 +132,8 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('project.column.search', params);
