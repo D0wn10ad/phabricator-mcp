@@ -14,7 +14,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         ids: z.array(z.coerce.number()).optional().describe('Project IDs'),
         phids: z.array(z.string()).optional().describe('Project PHIDs'),
         slugs: z.array(z.string()).optional().describe('Project slugs'),
-        name: z.string().optional().describe('Exact name match'),
+        name: z.string().optional().describe('Name substring search'),
         members: z.array(z.string()).optional().describe('Member user PHIDs'),
         watchers: z.array(z.string()).optional().describe('Watcher user PHIDs'),
         ancestors: z.array(z.string()).optional().describe('Ancestor project PHIDs'),
@@ -51,6 +51,8 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       removeMemberPHIDs: z.array(z.string()).optional().describe('Remove members'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      parent: z.string().optional().describe('Parent project PHID (to create as a subproject)'),
+      milestone: z.string().optional().describe('Parent project PHID (to create as a milestone of that project)'),
       slug: z.string().optional().describe('Project URL slug (replaces ALL existing slugs with this one)'),
       comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
     },
@@ -59,6 +61,12 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
 
       if (params.name !== undefined) {
         transactions.push({ type: 'name', value: params.name });
+      }
+      if (params.parent !== undefined) {
+        transactions.push({ type: 'parent', value: params.parent });
+      }
+      if (params.milestone !== undefined) {
+        transactions.push({ type: 'milestone', value: params.milestone });
       }
       if (params.slug !== undefined) {
         transactions.push({ type: 'slugs', value: [params.slug] });
