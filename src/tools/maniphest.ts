@@ -62,6 +62,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       subtype: z.string().optional().describe('Task subtype (e.g. "default", "incident")'),
       parentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs'),
       subtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs'),
+      comment: z.string().optional().describe('Initial comment on the task (supports Remarkup)'),
       customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
         'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Use the phabricator_task_custom_fields tool to discover available fields.'
       ),
@@ -97,6 +98,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       }
       if (params.subtaskPHIDs !== undefined) {
         transactions.push({ type: 'subtasks.set', value: params.subtaskPHIDs });
+      }
+      if (params.comment !== undefined) {
+        transactions.push({ type: 'comment', value: params.comment });
       }
       if (params.customFields !== undefined) {
         for (const [key, value] of Object.entries(params.customFields)) {
