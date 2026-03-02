@@ -9,7 +9,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     'phabricator_revision_search',
     'Search Differential revisions (code reviews)',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all", "active", "authored", "waiting", "reviewable"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "active", "authored"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Revision IDs'),
         phids: z.array(z.string()).optional().describe('Revision PHIDs'),
@@ -29,11 +29,12 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         reviewers: z.boolean().optional().describe('Include reviewers'),
         subscribers: z.boolean().optional().describe('Include subscribers'),
         projects: z.boolean().optional().describe('Include projects'),
-        'reviewers-extra': z.boolean().optional().describe('Include detailed reviewer info with status (accepted, rejected, etc.)'),
+        'reviewers-extra': z.boolean().optional().describe('Include detailed reviewer info with voids and diff context (may not be available on all Phabricator versions)'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order: "newest", "oldest", "updated", "relevance"'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('differential.revision.search', params);
@@ -50,12 +51,13 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       title: z.string().optional().describe('New title'),
       summary: z.string().optional().describe('New summary'),
       testPlan: z.string().optional().describe('New test plan'),
-      addReviewerPHIDs: z.array(z.string()).optional().describe('Add reviewers'),
+      addReviewerPHIDs: z.array(z.string()).optional().describe('Add reviewers. Prefix with "blocking(PHID)" to add as blocking reviewer'),
       removeReviewerPHIDs: z.array(z.string()).optional().describe('Remove reviewers'),
+      setReviewerPHIDs: z.array(z.string()).optional().describe('Replace all reviewers with this list. Prefix with "blocking(PHID)" for blocking'),
       addProjectPHIDs: z.array(z.string()).optional().describe('Add projects'),
       removeProjectPHIDs: z.array(z.string()).optional().describe('Remove projects'),
       comment: z.string().optional().describe('Add a comment'),
-      action: z.enum(['accept', 'reject', 'abandon', 'reclaim', 'request-review', 'resign', 'commandeer', 'plan-changes']).optional().describe('Revision action to take'),
+      action: z.enum(['accept', 'reject', 'abandon', 'reclaim', 'request-review', 'resign', 'commandeer', 'plan-changes', 'close']).optional().describe('Revision action to take'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
       repositoryPHID: z.string().optional().describe('Repository PHID to associate with the revision'),
@@ -77,6 +79,9 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       }
       if (params.removeReviewerPHIDs !== undefined) {
         transactions.push({ type: 'reviewers.remove', value: params.removeReviewerPHIDs });
+      }
+      if (params.setReviewerPHIDs !== undefined) {
+        transactions.push({ type: 'reviewers.set', value: params.setReviewerPHIDs });
       }
       if (params.addProjectPHIDs !== undefined) {
         transactions.push({ type: 'projects.add', value: params.addProjectPHIDs });
@@ -142,7 +147,8 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order: "newest", "oldest"'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('differential.diff.search', params);
@@ -164,7 +170,8 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('differential.changeset.search', params);
