@@ -17,9 +17,6 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         containerPHIDs: z.array(z.string()).optional().describe('Container PHIDs'),
         statuses: z.array(z.string()).optional().describe('Buildable statuses'),
       })).optional().describe('Search constraints'),
-      attachments: jsonCoerce(z.object({
-        builds: z.boolean().optional().describe('Include builds for each buildable'),
-      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for next-page pagination'),
@@ -45,9 +42,6 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         statuses: z.array(z.string()).optional().describe('Build statuses: building, passed, failed, aborted, error, paused'),
         initiatorPHIDs: z.array(z.string()).optional().describe('PHIDs of users/objects that initiated the build'),
       })).optional().describe('Search constraints'),
-      attachments: jsonCoerce(z.object({
-        targets: z.boolean().optional().describe('Include build targets for each build'),
-      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for next-page pagination'),
@@ -92,9 +86,6 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         phids: z.array(z.string()).optional().describe('Log PHIDs'),
         buildTargetPHIDs: z.array(z.string()).optional().describe('Build target PHIDs'),
       })).optional().describe('Search constraints'),
-      attachments: jsonCoerce(z.object({
-        content: z.boolean().optional().describe('Include actual log text content'),
-      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for next-page pagination'),
@@ -158,7 +149,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Build plan IDs'),
         phids: z.array(z.string()).optional().describe('Build plan PHIDs'),
-        statuses: z.array(z.string()).optional().describe('Plan statuses: "active", "disabled"'),
+        status: z.array(z.string()).optional().describe('Plan statuses: "active", "disabled"'),
         match: z.string().optional().describe('Search for build plans by name substring'),
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
