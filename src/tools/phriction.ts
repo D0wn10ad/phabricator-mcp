@@ -36,7 +36,7 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
     'phabricator_document_edit',
     'Create or edit a Phriction wiki document. To create, provide a new slug with title and content.',
     {
-      slug: z.string().describe('Document path/slug (e.g., "projects/myproject/")'),
+      objectIdentifier: z.string().describe('Document slug, PHID, or ID (e.g., "projects/myproject/")'),
       title: z.string().optional().describe('Document title'),
       content: z.string().optional().describe('Document content (Remarkup)'),
     },
@@ -55,7 +55,7 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
       }
 
       const result = await client.call('phriction.document.edit', {
-        objectIdentifier: params.slug,
+        objectIdentifier: params.objectIdentifier,
         transactions,
       });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
@@ -67,12 +67,12 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
     'phabricator_document_add_comment',
     'Add a comment to a Phriction wiki document',
     {
-      slug: z.string().describe('Document path/slug (e.g., "projects/myproject/")'),
+      objectIdentifier: z.string().describe('Document slug, PHID, or ID (e.g., "projects/myproject/")'),
       comment: z.string().describe('Comment text (supports Remarkup)'),
     },
     async (params) => {
       const result = await client.call('phriction.document.edit', {
-        objectIdentifier: params.slug,
+        objectIdentifier: params.objectIdentifier,
         transactions: [{ type: 'comment', value: params.comment }],
       });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
