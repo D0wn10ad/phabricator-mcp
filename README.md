@@ -292,6 +292,7 @@ Once connected, just ask your AI assistant to perform Phabricator tasks in natur
 - "Close task T12345"
 - "What custom fields are available for incident tasks?"
 - "Set the start date and root cause category on T12345"
+- "Make T456 a subtask of T123"
 
 **Code Reviews**
 - "Show my open diffs"

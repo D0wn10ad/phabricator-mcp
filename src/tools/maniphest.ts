@@ -50,6 +50,8 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       projectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to tag'),
       subscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs'),
       status: z.string().optional().describe('Initial status'),
+      parentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs'),
+      subtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs'),
       customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
         'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Use the phabricator_task_custom_fields tool to discover available fields.'
       ),
@@ -77,6 +79,12 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       if (params.status !== undefined) {
         transactions.push({ type: 'status', value: params.status });
       }
+      if (params.parentPHIDs !== undefined) {
+        transactions.push({ type: 'parents.set', value: params.parentPHIDs });
+      }
+      if (params.subtaskPHIDs !== undefined) {
+        transactions.push({ type: 'subtasks.set', value: params.subtaskPHIDs });
+      }
       if (params.customFields !== undefined) {
         for (const [key, value] of Object.entries(params.customFields)) {
           transactions.push({ type: key, value });
@@ -103,6 +111,10 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       removeProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to remove'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      addParentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs to add'),
+      removeParentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs to remove'),
+      addSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to add'),
+      removeSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to remove'),
       columnPHID: z.string().optional().describe('Move to workboard column'),
       customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
         'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Use the phabricator_task_custom_fields tool to discover available fields.'
@@ -137,6 +149,18 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       }
       if (params.removeSubscriberPHIDs !== undefined) {
         transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
+      }
+      if (params.addParentPHIDs !== undefined) {
+        transactions.push({ type: 'parents.add', value: params.addParentPHIDs });
+      }
+      if (params.removeParentPHIDs !== undefined) {
+        transactions.push({ type: 'parents.remove', value: params.removeParentPHIDs });
+      }
+      if (params.addSubtaskPHIDs !== undefined) {
+        transactions.push({ type: 'subtasks.add', value: params.addSubtaskPHIDs });
+      }
+      if (params.removeSubtaskPHIDs !== undefined) {
+        transactions.push({ type: 'subtasks.remove', value: params.removeSubtaskPHIDs });
       }
       if (params.columnPHID !== undefined) {
         transactions.push({ type: 'column', value: [params.columnPHID] });
