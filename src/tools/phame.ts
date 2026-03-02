@@ -15,6 +15,9 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
         phids: z.array(z.string()).optional().describe('Blog PHIDs'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        subscribers: z.boolean().optional().describe('Include subscriber details'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for pagination'),

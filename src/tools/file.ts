@@ -48,7 +48,7 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
   // Get file info
   server.tool(
     'phabricator_file_info',
-    'Get metadata about a file (name, size, MIME type, URI). Use the returned URI to download. Provide at least one of id or phid.',
+    'Get metadata about a file (name, size, MIME type, URI). Use the returned URI to download. Provide at least one of id or phid. Uses file.info (the only Conduit method that returns download URIs).',
     {
       id: z.coerce.number().optional().describe('File ID (provide this or phid)'),
       phid: z.string().optional().describe('File PHID (provide this or id)'),

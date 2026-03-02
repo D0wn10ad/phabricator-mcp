@@ -6,7 +6,7 @@ export function registerAuditTools(server: McpServer, client: ConduitClient) {
   // Query audits
   server.tool(
     'phabricator_audit_query',
-    'Search commit audit requests. Find commits needing audit, or audits by a specific user.',
+    'Search commit audit requests. Find commits needing audit, or audits by a specific user. Uses the audit.query endpoint (no modern replacement available).',
     {
       auditorPHIDs: z.array(z.string()).optional().describe('Auditor user/project PHIDs'),
       commitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to check audit status for'),
