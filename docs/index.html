@@ -9,7 +9,7 @@
   <link rel="canonical" href="https://freelancer.github.io/phabricator-mcp/">
 
   <meta property="og:title" content="phabricator-mcp">
-  <meta property="og:description" content="MCP server that lets AI assistants talk to Phabricator. 29 tools for tasks, diffs, repos, wikis.">
+  <meta property="og:description" content="MCP server that lets AI assistants talk to Phabricator. 43 tools for tasks, diffs, repos, wikis.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://freelancer.github.io/phabricator-mcp/">
 
@@ -41,7 +41,7 @@
         "name": "What is phabricator-mcp?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "phabricator-mcp is an open-source MCP (Model Context Protocol) server that connects AI assistants like Claude, ChatGPT, and GitHub Copilot to Phabricator. It provides 29 tools covering task management (Maniphest), code reviews (Differential) including raw diff fetching, repositories (Diffusion), wikis (Phriction), and more."
+          "text": "phabricator-mcp is an open-source MCP (Model Context Protocol) server that connects AI assistants like Claude, ChatGPT, and GitHub Copilot to Phabricator. It provides 43 tools covering task management (Maniphest), code reviews (Differential) including raw diff fetching, repositories (Diffusion), wikis (Phriction), and more."
         }
       },
       {
@@ -65,7 +65,7 @@
         "name": "What Phabricator features does phabricator-mcp support?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "phabricator-mcp provides 29 tools covering: Maniphest (task search, create, edit, comment, custom fields), Differential (revision search, edit, diff search, raw diff content), Diffusion (repository and commit search), Projects (search, edit, workboard columns), Phriction (wiki search and edit), Pastes (search and create), Phame (blog search, create, edit), Transactions (comment and history search), Files (upload), and PHID utilities."
+          "text": "phabricator-mcp provides 43 tools covering: Maniphest (task search, create, edit, comment, custom fields, status/priority discovery), Differential (revision search, edit, accept/reject, inline comments, diff search, raw diffs), Diffusion (repository and commit search, file browsing, file content), Projects (search, create/edit, workboard columns), Phriction (wiki search and edit), Pastes (search and create), Phame (blog search, create, edit), Harbormaster (build/CI status, build logs), Owners (code ownership search), Transactions (comment and history search), Files (upload, search, info), and PHID utilities."
         }
       }
     ]
@@ -425,7 +425,7 @@ You have 3 open revisions:<br>
         </div>
       </div>
 
-      <h2>29 tools across 10 Phabricator apps</h2>
+      <h2>43 tools across 12 Phabricator apps</h2>
 
       <div class="tools-grid">
         <div class="tool-group">
@@ -434,20 +434,22 @@ You have 3 open revisions:<br>
             <li><code>task_search</code> &middot; <code>task_create</code></li>
             <li><code>task_edit</code> &middot; <code>task_add_comment</code></li>
             <li><code>task_custom_fields</code></li>
+            <li><code>task_status_search</code> &middot; <code>task_priority_search</code></li>
           </ul>
         </div>
         <div class="tool-group">
           <h4>Differential</h4>
           <ul>
             <li><code>revision_search</code> &middot; <code>revision_edit</code></li>
+            <li><code>revision_inline_comment</code></li>
             <li><code>get_raw_diff</code> &middot; <code>diff_search</code></li>
           </ul>
         </div>
         <div class="tool-group">
           <h4>Diffusion</h4>
           <ul>
-            <li><code>repository_search</code></li>
-            <li><code>commit_search</code></li>
+            <li><code>repository_search</code> &middot; <code>commit_search</code></li>
+            <li><code>file_browse</code> &middot; <code>file_content</code></li>
           </ul>
         </div>
         <div class="tool-group">
@@ -482,7 +484,21 @@ You have 3 open revisions:<br>
         <div class="tool-group">
           <h4>Files</h4>
           <ul>
-            <li><code>file_upload</code></li>
+            <li><code>file_upload</code> &middot; <code>file_search</code></li>
+            <li><code>file_info</code></li>
+          </ul>
+        </div>
+        <div class="tool-group">
+          <h4>Harbormaster</h4>
+          <ul>
+            <li><code>buildable_search</code> &middot; <code>build_search</code></li>
+            <li><code>build_target_search</code> &middot; <code>build_log_search</code></li>
+          </ul>
+        </div>
+        <div class="tool-group">
+          <h4>Owners</h4>
+          <ul>
+            <li><code>owners_search</code></li>
           </ul>
         </div>
         <div class="tool-group">
@@ -530,11 +546,15 @@ PHABRICATOR_API_TOKEN=api-xxxxx</code></pre>
     "allow": [
       "mcp__phabricator__phabricator_task_search",
       "mcp__phabricator__phabricator_task_custom_fields",
+      "mcp__phabricator__phabricator_task_status_search",
+      "mcp__phabricator__phabricator_task_priority_search",
       "mcp__phabricator__phabricator_revision_search",
       "mcp__phabricator__phabricator_diff_search",
       "mcp__phabricator__phabricator_get_raw_diff",
       "mcp__phabricator__phabricator_repository_search",
       "mcp__phabricator__phabricator_commit_search",
+      "mcp__phabricator__phabricator_file_browse",
+      "mcp__phabricator__phabricator_file_content",
       "mcp__phabricator__phabricator_user_whoami",
       "mcp__phabricator__phabricator_user_search",
       "mcp__phabricator__phabricator_project_search",
@@ -543,6 +563,13 @@ PHABRICATOR_API_TOKEN=api-xxxxx</code></pre>
       "mcp__phabricator__phabricator_document_search",
       "mcp__phabricator__phabricator_blog_search",
       "mcp__phabricator__phabricator_blog_post_search",
+      "mcp__phabricator__phabricator_file_search",
+      "mcp__phabricator__phabricator_file_info",
+      "mcp__phabricator__phabricator_buildable_search",
+      "mcp__phabricator__phabricator_build_search",
+      "mcp__phabricator__phabricator_build_target_search",
+      "mcp__phabricator__phabricator_build_log_search",
+      "mcp__phabricator__phabricator_owners_search",
       "mcp__phabricator__phabricator_phid_lookup",
       "mcp__phabricator__phabricator_phid_query",
       "mcp__phabricator__phabricator_transaction_search"
@@ -566,7 +593,7 @@ PHABRICATOR_API_TOKEN=api-xxxxx</code></pre>
 
       <details>
         <summary>Can it modify tasks and revisions, or is it read-only?</summary>
-        <p>Both. You can search, create, edit, and comment on tasks (including custom fields), revisions, wiki pages, blog posts, and more. 29 tools total.</p>
+        <p>Both. You can search, create, edit, and comment on tasks (including custom fields), revisions, wiki pages, blog posts, and more. 43 tools total.</p>
       </details>
 
       <details>

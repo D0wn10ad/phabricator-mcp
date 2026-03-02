@@ -42,7 +42,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
     'phabricator_project_edit',
     'Edit a Phabricator project',
     {
-      objectIdentifier: z.string().describe('Project PHID or ID'),
+      objectIdentifier: z.string().optional().describe('Project PHID or ID. Omit to create a new project.'),
       name: z.string().optional().describe('New name'),
       description: z.string().optional().describe('New description'),
       icon: z.string().optional().describe('New icon'),
@@ -76,10 +76,11 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         return { content: [{ type: 'text', text: 'No changes specified' }] };
       }
 
-      const result = await client.call('project.edit', {
-        objectIdentifier: params.objectIdentifier,
-        transactions,
-      });
+      const apiParams: Record<string, unknown> = { transactions };
+      if (params.objectIdentifier !== undefined) {
+        apiParams.objectIdentifier = params.objectIdentifier;
+      }
+      const result = await client.call('project.edit', apiParams);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );

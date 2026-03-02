@@ -171,11 +171,15 @@ Add to your `~/.claude/settings.json`:
     "allow": [
       "mcp__phabricator__phabricator_task_search",
       "mcp__phabricator__phabricator_task_custom_fields",
+      "mcp__phabricator__phabricator_task_status_search",
+      "mcp__phabricator__phabricator_task_priority_search",
       "mcp__phabricator__phabricator_revision_search",
       "mcp__phabricator__phabricator_diff_search",
       "mcp__phabricator__phabricator_get_raw_diff",
       "mcp__phabricator__phabricator_repository_search",
       "mcp__phabricator__phabricator_commit_search",
+      "mcp__phabricator__phabricator_file_browse",
+      "mcp__phabricator__phabricator_file_content",
       "mcp__phabricator__phabricator_user_whoami",
       "mcp__phabricator__phabricator_user_search",
       "mcp__phabricator__phabricator_project_search",
@@ -184,6 +188,13 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_document_search",
       "mcp__phabricator__phabricator_blog_search",
       "mcp__phabricator__phabricator_blog_post_search",
+      "mcp__phabricator__phabricator_file_search",
+      "mcp__phabricator__phabricator_file_info",
+      "mcp__phabricator__phabricator_buildable_search",
+      "mcp__phabricator__phabricator_build_search",
+      "mcp__phabricator__phabricator_build_target_search",
+      "mcp__phabricator__phabricator_build_log_search",
+      "mcp__phabricator__phabricator_owners_search",
       "mcp__phabricator__phabricator_phid_lookup",
       "mcp__phabricator__phabricator_phid_query",
       "mcp__phabricator__phabricator_transaction_search",
@@ -206,13 +217,16 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_task_edit` | Edit an existing task |
 | `phabricator_task_add_comment` | Add a comment to a task |
 | `phabricator_task_custom_fields` | List available custom fields for tasks |
+| `phabricator_task_status_search` | List all available task statuses on the instance |
+| `phabricator_task_priority_search` | List all available task priorities on the instance |
 
 ### Code Reviews (Differential)
 
 | Tool | Description |
 |------|-------------|
 | `phabricator_revision_search` | Search code review revisions |
-| `phabricator_revision_edit` | Edit a revision (add reviewers, comment, etc.) |
+| `phabricator_revision_edit` | Edit a revision (accept, reject, add reviewers, comment, etc.) |
+| `phabricator_revision_inline_comment` | Create an inline comment on a specific line of a diff |
 | `phabricator_get_raw_diff` | Get the raw diff/patch content for a diff by ID |
 | `phabricator_diff_search` | Search diffs |
 
@@ -222,6 +236,8 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 |------|-------------|
 | `phabricator_repository_search` | Search repositories |
 | `phabricator_commit_search` | Search commits |
+| `phabricator_file_browse` | Browse a repository directory tree |
+| `phabricator_file_content` | Read file contents from a repository |
 
 ### Users
 
@@ -235,7 +251,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | Tool | Description |
 |------|-------------|
 | `phabricator_project_search` | Search projects |
-| `phabricator_project_edit` | Edit a project |
+| `phabricator_project_edit` | Create or edit a project |
 | `phabricator_column_search` | Search workboard columns |
 
 ### Pastes
@@ -273,6 +289,23 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | Tool | Description |
 |------|-------------|
 | `phabricator_file_upload` | Upload a file and get an ID for embedding in descriptions/comments via `{F<id>}` |
+| `phabricator_file_search` | Search for files |
+| `phabricator_file_info` | Get file metadata (name, size, MIME type, URI) |
+
+### Builds (Harbormaster)
+
+| Tool | Description |
+|------|-------------|
+| `phabricator_buildable_search` | Search buildables (revisions/commits with builds) |
+| `phabricator_build_search` | Search builds (CI/build results) |
+| `phabricator_build_target_search` | Search build targets (individual build steps) |
+| `phabricator_build_log_search` | Search build logs (output from build steps) |
+
+### Code Ownership (Owners)
+
+| Tool | Description |
+|------|-------------|
+| `phabricator_owners_search` | Search code ownership packages |
 
 ### PHID Utilities
 
@@ -306,6 +339,15 @@ Once connected, just ask your AI assistant to perform Phabricator tasks in natur
 - "What's the status of D6789?"
 - "Review the code changes in D6789"
 - "Add @alice as a reviewer to D6789"
+- "Accept D6789"
+- "Leave an inline comment on line 42 of src/index.ts in D6789"
+
+**Repositories & Builds**
+- "Show me the contents of src/config.ts in repo Backend"
+- "Browse the /src directory in the main repo"
+- "Is the build passing on D6789?"
+- "Show me the build logs for D6789"
+- "Who owns the code in /src/auth/?"
 
 **Search & Lookup**
 - "Find user john.doe"

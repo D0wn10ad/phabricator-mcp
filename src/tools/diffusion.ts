@@ -60,4 +60,42 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
+
+  // Browse repository file tree
+  server.tool(
+    'phabricator_file_browse',
+    'Browse a repository directory tree at a given path and commit/branch',
+    {
+      path: z.string().describe('Path to browse (e.g., "/", "/src/")'),
+      repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
+      commit: z.string().optional().describe('Commit hash or branch name (default: HEAD)'),
+    },
+    async (params) => {
+      const result = await client.call('diffusion.browsequery', {
+        path: params.path,
+        repository: params.repository,
+        commit: params.commit,
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Read file content from repository
+  server.tool(
+    'phabricator_file_content',
+    'Read file contents from a Diffusion repository at a given path and commit/branch',
+    {
+      path: z.string().describe('File path in the repository (e.g., "src/index.ts")'),
+      repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
+      commit: z.string().optional().describe('Commit hash or branch name (default: HEAD)'),
+    },
+    async (params) => {
+      const result = await client.call('diffusion.filecontentquery', {
+        path: params.path,
+        repository: params.repository,
+        commit: params.commit,
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
 }

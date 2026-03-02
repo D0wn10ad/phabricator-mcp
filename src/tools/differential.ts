@@ -47,6 +47,9 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       addProjectPHIDs: z.array(z.string()).optional().describe('Add projects'),
       removeProjectPHIDs: z.array(z.string()).optional().describe('Remove projects'),
       comment: z.string().optional().describe('Add a comment'),
+      action: z.enum(['accept', 'reject', 'abandon', 'reclaim', 'request-review', 'resign', 'commandeer', 'plan-changes']).optional().describe('Revision action to take'),
+      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
+      removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -74,6 +77,15 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       }
       if (params.comment !== undefined) {
         transactions.push({ type: 'comment', value: params.comment });
+      }
+      if (params.action !== undefined) {
+        transactions.push({ type: params.action, value: true });
+      }
+      if (params.addSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
+      }
+      if (params.removeSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
       }
 
       if (transactions.length === 0) {
@@ -121,6 +133,33 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     },
     async (params) => {
       const result = await client.call('differential.diff.search', params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Create inline comment on a diff
+  server.tool(
+    'phabricator_revision_inline_comment',
+    'Create an inline comment on a specific line of a Differential diff. The comment will appear as a draft until the revision is submitted/commented on.',
+    {
+      revisionID: z.string().describe('Revision ID (e.g., "D123" or just "123")'),
+      diffID: z.coerce.number().describe('Diff ID to comment on. Use phabricator_diff_search to find this.'),
+      filePath: z.string().describe('Path to the file being commented on'),
+      lineNumber: z.coerce.number().describe('Line number in the file'),
+      lineLength: z.coerce.number().optional().describe('Number of lines the comment spans (default: 0 for single line)'),
+      content: z.string().describe('Comment text (supports Remarkup)'),
+      isNewFile: z.boolean().optional().describe('Whether the line number refers to the new file (true) or old file (false). Default: true'),
+    },
+    async (params) => {
+      const result = await client.call('differential.createinline', {
+        revisionID: params.revisionID,
+        diffID: params.diffID,
+        filePath: params.filePath,
+        lineNumber: params.lineNumber,
+        lineLength: params.lineLength ?? 0,
+        content: params.content,
+        isNewFile: params.isNewFile ?? true,
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );

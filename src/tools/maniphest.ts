@@ -200,6 +200,28 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
     },
   );
 
+  // Search available task statuses
+  server.tool(
+    'phabricator_task_status_search',
+    'List all available task statuses configured on this Phabricator instance',
+    {},
+    async () => {
+      const result = await client.call('maniphest.status.search');
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Search available task priorities
+  server.tool(
+    'phabricator_task_priority_search',
+    'List all available task priorities configured on this Phabricator instance',
+    {},
+    async () => {
+      const result = await client.call('maniphest.priority.search');
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
   // List custom fields for tasks
   server.tool(
     'phabricator_task_custom_fields',

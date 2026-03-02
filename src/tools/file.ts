@@ -1,6 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { ConduitClient } from '../client/conduit.js';
 import { z } from 'zod';
+import { jsonCoerce } from './coerce.js';
 
 export function registerFileTools(server: McpServer, client: ConduitClient) {
   // Upload a file
@@ -18,6 +19,41 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
         data_base64: params.data_base64,
         viewPolicy: params.viewPolicy,
       });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Search files
+  server.tool(
+    'phabricator_file_search',
+    'Search for files in Phabricator',
+    {
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('File IDs'),
+        phids: z.array(z.string()).optional().describe('File PHIDs'),
+        authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
+        names: z.array(z.string()).optional().describe('File names'),
+      })).optional().describe('Search constraints'),
+      order: z.string().optional().describe('Result order'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      after: z.string().optional().describe('Pagination cursor'),
+    },
+    async (params) => {
+      const result = await client.call('file.search', params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Get file info
+  server.tool(
+    'phabricator_file_info',
+    'Get metadata about a file (name, size, MIME type, URI). Use the returned URI to download.',
+    {
+      id: z.coerce.number().optional().describe('File ID'),
+      phid: z.string().optional().describe('File PHID'),
+    },
+    async (params) => {
+      const result = await client.call('file.info', params);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
