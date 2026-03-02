@@ -7,19 +7,17 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
   // Upload a file
   server.tool(
     'phabricator_file_upload',
-    'Upload a file to Phabricator. Returns a file ID that can be embedded in task descriptions, comments, or diff comments using Remarkup syntax {F<id>}.',
+    'Upload a file to Phabricator. Returns a file PHID that can be used with phabricator_file_info to get the file ID for embedding in Remarkup via {F<id>}.',
     {
       name: z.string().describe('Filename with extension (e.g. "screenshot.png")'),
       data_base64: z.string().describe('Base64-encoded file content'),
-      viewPolicy: z.string().optional().describe('View policy PHID (default: uploading user)'),
     },
     async (params) => {
-      const result = await client.call<{ phid: string; id: number; name: string; uri: string }>('file.upload', {
+      const phid = await client.call<string>('file.upload', {
         name: params.name,
         data_base64: params.data_base64,
-        viewPolicy: params.viewPolicy,
       });
-      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+      return { content: [{ type: 'text', text: phid }] };
     },
   );
 
@@ -35,6 +33,9 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
         names: z.array(z.string()).optional().describe('File names'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        content: z.boolean().optional().describe('Include file content (for small text files)'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
