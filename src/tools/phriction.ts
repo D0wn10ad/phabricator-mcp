@@ -39,6 +39,8 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
       objectIdentifier: z.string().describe('Document slug, PHID, or ID (e.g., "projects/myproject/")'),
       title: z.string().optional().describe('Document title'),
       content: z.string().optional().describe('Document content (Remarkup)'),
+      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
+      removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -48,6 +50,12 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
       }
       if (params.content !== undefined) {
         transactions.push({ type: 'content', value: params.content });
+      }
+      if (params.addSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
+      }
+      if (params.removeSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
       }
 
       if (transactions.length === 0) {

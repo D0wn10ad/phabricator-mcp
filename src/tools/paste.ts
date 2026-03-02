@@ -70,6 +70,8 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       content: z.string().optional().describe('New content'),
       language: z.string().optional().describe('Syntax highlighting language'),
       status: z.string().optional().describe('Status: active or archived'),
+      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
+      removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -85,6 +87,12 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       }
       if (params.status !== undefined) {
         transactions.push({ type: 'status', value: params.status });
+      }
+      if (params.addSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
+      }
+      if (params.removeSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
       }
 
       if (transactions.length === 0) {
