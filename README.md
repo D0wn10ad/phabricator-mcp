@@ -180,6 +180,10 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_commit_search",
       "mcp__phabricator__phabricator_file_browse",
       "mcp__phabricator__phabricator_file_content",
+      "mcp__phabricator__phabricator_branch_search",
+      "mcp__phabricator__phabricator_tag_search",
+      "mcp__phabricator__phabricator_file_history",
+      "mcp__phabricator__phabricator_repository_search_code",
       "mcp__phabricator__phabricator_user_whoami",
       "mcp__phabricator__phabricator_user_search",
       "mcp__phabricator__phabricator_project_search",
@@ -194,7 +198,12 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_build_search",
       "mcp__phabricator__phabricator_build_target_search",
       "mcp__phabricator__phabricator_build_log_search",
+      "mcp__phabricator__phabricator_build_plan_search",
       "mcp__phabricator__phabricator_owners_search",
+      "mcp__phabricator__phabricator_feed_query",
+      "mcp__phabricator__phabricator_conpherence_search",
+      "mcp__phabricator__phabricator_conpherence_read",
+      "mcp__phabricator__phabricator_audit_search",
       "mcp__phabricator__phabricator_phid_lookup",
       "mcp__phabricator__phabricator_phid_query",
       "mcp__phabricator__phabricator_transaction_search",
@@ -225,10 +234,10 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | Tool | Description |
 |------|-------------|
 | `phabricator_revision_search` | Search code review revisions |
-| `phabricator_revision_edit` | Edit a revision (accept, reject, add reviewers, comment, etc.) |
+| `phabricator_revision_edit` | Create or edit a revision (accept, reject, add reviewers, link tasks, comment, etc.) |
 | `phabricator_revision_inline_comment` | Create an inline comment on a specific line of a diff |
 | `phabricator_get_raw_diff` | Get the raw diff/patch content for a diff by ID |
-| `phabricator_diff_search` | Search diffs |
+| `phabricator_diff_search` | Search diffs (code change snapshots within a revision) |
 
 ### Repositories (Diffusion)
 
@@ -238,6 +247,10 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_commit_search` | Search commits |
 | `phabricator_file_browse` | Browse a repository directory tree |
 | `phabricator_file_content` | Read file contents from a repository |
+| `phabricator_branch_search` | List branches in a repository |
+| `phabricator_tag_search` | List tags in a repository |
+| `phabricator_file_history` | Get commit history for a file path |
+| `phabricator_repository_search_code` | Search (grep) file contents within a repository |
 
 ### Users
 
@@ -300,12 +313,33 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_build_search` | Search builds (CI/build results) |
 | `phabricator_build_target_search` | Search build targets (individual build steps) |
 | `phabricator_build_log_search` | Search build logs (output from build steps) |
+| `phabricator_build_plan_search` | Search build plans (CI pipeline configurations) |
 
 ### Code Ownership (Owners)
 
 | Tool | Description |
 |------|-------------|
 | `phabricator_owners_search` | Search code ownership packages |
+
+### Activity Feed
+
+| Tool | Description |
+|------|-------------|
+| `phabricator_feed_query` | Query the activity feed (recent task updates, revision changes, commits, etc.) |
+
+### Chat (Conpherence)
+
+| Tool | Description |
+|------|-------------|
+| `phabricator_conpherence_search` | Search chat rooms/threads |
+| `phabricator_conpherence_read` | Read messages from a chat thread |
+| `phabricator_conpherence_send` | Send a message to a chat thread |
+
+### Audits
+
+| Tool | Description |
+|------|-------------|
+| `phabricator_audit_search` | Search commit audit requests |
 
 ### PHID Utilities
 

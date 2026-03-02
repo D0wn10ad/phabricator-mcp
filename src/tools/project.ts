@@ -40,7 +40,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
   // Edit project
   server.tool(
     'phabricator_project_edit',
-    'Edit a Phabricator project',
+    'Create or edit a Phabricator project. Omit objectIdentifier to create a new project.',
     {
       objectIdentifier: z.string().optional().describe('Project PHID or ID. Omit to create a new project.'),
       name: z.string().optional().describe('New name'),

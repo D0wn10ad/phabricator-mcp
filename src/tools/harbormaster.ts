@@ -87,4 +87,25 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
+
+  // Search build plans
+  server.tool(
+    'phabricator_build_plan_search',
+    'Search Harbormaster build plans (CI pipeline configurations)',
+    {
+      constraints: jsonCoerce(z.object({
+        ids: z.array(z.coerce.number()).optional().describe('Build plan IDs'),
+        phids: z.array(z.string()).optional().describe('Build plan PHIDs'),
+        statuses: z.array(z.string()).optional().describe('Plan statuses'),
+        query: z.string().optional().describe('Full-text search query'),
+      })).optional().describe('Search constraints'),
+      order: z.string().optional().describe('Result order'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      after: z.string().optional().describe('Pagination cursor'),
+    },
+    async (params) => {
+      const result = await client.call('harbormaster.buildplan.search', params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
 }

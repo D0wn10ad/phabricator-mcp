@@ -21,6 +21,15 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         columnPHIDs: z.array(z.string()).optional().describe('Workboard column PHIDs'),
         projectPHIDs: z.array(z.string()).optional().describe('Project PHIDs (tasks tagged with these projects)'),
         query: z.string().optional().describe('Full-text search query'),
+        createdStart: z.coerce.number().optional().describe('Created after (epoch timestamp)'),
+        createdEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),
+        modifiedStart: z.coerce.number().optional().describe('Modified after (epoch timestamp)'),
+        modifiedEnd: z.coerce.number().optional().describe('Modified before (epoch timestamp)'),
+        closerPHIDs: z.array(z.string()).optional().describe('PHIDs of users who closed the task'),
+        parentIDs: z.array(z.coerce.number()).optional().describe('Parent task IDs'),
+        subtaskIDs: z.array(z.coerce.number()).optional().describe('Subtask IDs'),
+        hasParents: z.boolean().optional().describe('Filter to tasks that have parent tasks'),
+        hasSubtasks: z.boolean().optional().describe('Filter to tasks that have subtasks'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
         columns: z.boolean().optional().describe('Include workboard column info'),
@@ -50,6 +59,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       projectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to tag'),
       subscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs'),
       status: z.string().optional().describe('Initial status'),
+      subtype: z.string().optional().describe('Task subtype (e.g. "default", "incident")'),
       parentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs'),
       subtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs'),
       customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
@@ -78,6 +88,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       }
       if (params.status !== undefined) {
         transactions.push({ type: 'status', value: params.status });
+      }
+      if (params.subtype !== undefined) {
+        transactions.push({ type: 'subtype', value: params.subtype });
       }
       if (params.parentPHIDs !== undefined) {
         transactions.push({ type: 'parents.set', value: params.parentPHIDs });

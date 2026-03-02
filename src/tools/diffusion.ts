@@ -50,6 +50,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       attachments: jsonCoerce(z.object({
         projects: z.boolean().optional().describe('Include projects'),
         subscribers: z.boolean().optional().describe('Include subscribers'),
+        auditors: z.boolean().optional().describe('Include auditor info'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results'),
@@ -94,6 +95,79 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
         path: params.path,
         repository: params.repository,
         commit: params.commit,
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // List branches
+  server.tool(
+    'phabricator_branch_search',
+    'List branches in a Diffusion repository',
+    {
+      repository: z.string().describe('Repository callsign, short name, or PHID'),
+      contains: z.string().optional().describe('Only branches containing this commit'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      offset: z.coerce.number().optional().describe('Result offset for pagination'),
+    },
+    async (params) => {
+      const result = await client.call('diffusion.branchquery', params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // List tags
+  server.tool(
+    'phabricator_tag_search',
+    'List tags in a Diffusion repository',
+    {
+      repository: z.string().describe('Repository callsign, short name, or PHID'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      offset: z.coerce.number().optional().describe('Result offset for pagination'),
+    },
+    async (params) => {
+      const result = await client.call('diffusion.tagsquery', params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // File commit history
+  server.tool(
+    'phabricator_file_history',
+    'Get commit history for a file path in a Diffusion repository',
+    {
+      path: z.string().describe('File path in the repository'),
+      repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
+      commit: z.string().optional().describe('Commit hash or branch to start from (default: HEAD)'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      offset: z.coerce.number().optional().describe('Result offset for pagination'),
+    },
+    async (params) => {
+      const result = await client.call('diffusion.historyquery', params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Search file contents in repository
+  server.tool(
+    'phabricator_repository_search_code',
+    'Search (grep) file contents within a Diffusion repository',
+    {
+      path: z.string().optional().describe('Directory path to search within (default: root)'),
+      repository: z.string().describe('Repository callsign, short name, or PHID'),
+      query: z.string().describe('Search query / pattern'),
+      commit: z.string().optional().describe('Commit hash or branch (default: HEAD)'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      offset: z.coerce.number().optional().describe('Result offset for pagination'),
+    },
+    async (params) => {
+      const result = await client.call('diffusion.searchquery', {
+        path: params.path ?? '/',
+        repository: params.repository,
+        grep: params.query,
+        commit: params.commit,
+        limit: params.limit,
+        offset: params.offset,
       });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },

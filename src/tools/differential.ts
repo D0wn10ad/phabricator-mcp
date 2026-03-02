@@ -17,13 +17,20 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         reviewerPHIDs: z.array(z.string()).optional().describe('Reviewer PHIDs'),
         repositoryPHIDs: z.array(z.string()).optional().describe('Repository PHIDs'),
         statuses: z.array(z.string()).optional().describe('Statuses: needs-review, needs-revision, accepted, published, abandoned, changes-planned'),
+        responsiblePHIDs: z.array(z.string()).optional().describe('User PHIDs who are responsible (as author or reviewer)'),
+        affectedPaths: z.array(z.string()).optional().describe('File paths affected by the revision'),
+        createdStart: z.coerce.number().optional().describe('Created after (epoch timestamp)'),
+        createdEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),
+        modifiedStart: z.coerce.number().optional().describe('Modified after (epoch timestamp)'),
+        modifiedEnd: z.coerce.number().optional().describe('Modified before (epoch timestamp)'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
         reviewers: z.boolean().optional().describe('Include reviewers'),
         subscribers: z.boolean().optional().describe('Include subscribers'),
         projects: z.boolean().optional().describe('Include projects'),
+        'reviewers-extra': z.boolean().optional().describe('Include detailed reviewer info with status (accepted, rejected, etc.)'),
       })).optional().describe('Data attachments'),
-      order: z.string().optional().describe('Result order'),
+      order: z.string().optional().describe('Result order: "newest", "oldest", "updated", "relevance"'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results'),
       after: z.string().optional().describe('Pagination cursor'),
     },
@@ -38,7 +45,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     'phabricator_revision_edit',
     'Edit a Differential revision',
     {
-      objectIdentifier: z.string().describe('Revision PHID or ID (e.g., "D123")'),
+      objectIdentifier: z.string().optional().describe('Revision PHID or ID (e.g., "D123"). Omit to create a new revision.'),
       title: z.string().optional().describe('New title'),
       summary: z.string().optional().describe('New summary'),
       testPlan: z.string().optional().describe('New test plan'),
@@ -50,6 +57,8 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       action: z.enum(['accept', 'reject', 'abandon', 'reclaim', 'request-review', 'resign', 'commandeer', 'plan-changes']).optional().describe('Revision action to take'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      addTaskPHIDs: z.array(z.string()).optional().describe('Task PHIDs to link (e.g., "fixes T123")'),
+      removeTaskPHIDs: z.array(z.string()).optional().describe('Task PHIDs to unlink'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -87,15 +96,22 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       if (params.removeSubscriberPHIDs !== undefined) {
         transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
       }
+      if (params.addTaskPHIDs !== undefined) {
+        transactions.push({ type: 'tasks.add', value: params.addTaskPHIDs });
+      }
+      if (params.removeTaskPHIDs !== undefined) {
+        transactions.push({ type: 'tasks.remove', value: params.removeTaskPHIDs });
+      }
 
       if (transactions.length === 0) {
         return { content: [{ type: 'text', text: 'No changes specified' }] };
       }
 
-      const result = await client.call('differential.revision.edit', {
-        objectIdentifier: params.objectIdentifier,
-        transactions,
-      });
+      const apiParams: Record<string, unknown> = { transactions };
+      if (params.objectIdentifier !== undefined) {
+        apiParams.objectIdentifier = params.objectIdentifier;
+      }
+      const result = await client.call('differential.revision.edit', apiParams);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -118,7 +134,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
   // Search diffs
   server.tool(
     'phabricator_diff_search',
-    'Search Differential diffs',
+    'Search Differential diffs (code change snapshots within a revision). A revision may have multiple diffs as it gets updated.',
     {
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Diff IDs'),
