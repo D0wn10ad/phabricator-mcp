@@ -13,6 +13,7 @@ import { registerPhrictionTools } from './phriction.js';
 import { registerPhidTools } from './phid.js';
 import { registerPhameTools } from './phame.js';
 import { registerTransactionTools } from './transaction.js';
+import { registerFileTools } from './file.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf-8'));
@@ -37,4 +38,5 @@ export function registerAllTools(server: McpServer, client: ConduitClient) {
   registerPhidTools(server, client);
   registerPhameTools(server, client);
   registerTransactionTools(server, client);
+  registerFileTools(server, client);
 }
