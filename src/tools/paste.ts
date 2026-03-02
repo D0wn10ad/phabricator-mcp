@@ -39,6 +39,7 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       content: z.string().describe('Paste content'),
       language: z.string().optional().describe('Syntax highlighting language'),
       status: z.string().optional().describe('Status: active or archived'),
+      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [
@@ -53,6 +54,9 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       }
       if (params.status !== undefined) {
         transactions.push({ type: 'status', value: params.status });
+      }
+      if (params.addSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
       }
 
       const result = await client.call('paste.edit', { transactions });

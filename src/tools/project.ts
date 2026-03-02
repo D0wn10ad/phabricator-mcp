@@ -51,6 +51,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       removeMemberPHIDs: z.array(z.string()).optional().describe('Remove members'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      slug: z.string().optional().describe('Project URL slug (short name used in URLs)'),
       comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
     },
     async (params) => {
@@ -58,6 +59,9 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
 
       if (params.name !== undefined) {
         transactions.push({ type: 'name', value: params.name });
+      }
+      if (params.slug !== undefined) {
+        transactions.push({ type: 'slugs', value: [params.slug] });
       }
       if (params.description !== undefined) {
         transactions.push({ type: 'description', value: params.description });
