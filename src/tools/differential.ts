@@ -97,7 +97,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
       }
       if (params.repositoryPHID !== undefined) {
-        transactions.push({ type: 'repositoryPHID', value: params.repositoryPHID });
+        transactions.push({ type: 'repository', value: params.repositoryPHID });
       }
       if (transactions.length === 0) {
         return { content: [{ type: 'text', text: 'No changes specified' }] };
@@ -193,7 +193,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         lineNumber: params.lineNumber,
         lineLength: params.lineLength ?? 0,
         content: params.content,
-        isNewFile: params.isNewFile ?? true,
+        isNewFile: (params.isNewFile ?? true) ? 1 : 0,
       });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
