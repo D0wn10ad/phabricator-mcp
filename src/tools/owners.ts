@@ -15,7 +15,7 @@ export function registerOwnersTools(server: McpServer, client: ConduitClient) {
         phids: z.array(z.string()).optional().describe('Package PHIDs'),
         owners: z.array(z.string()).optional().describe('Owner user or project PHIDs'),
         repositoryPHIDs: z.array(z.string()).optional().describe('Repository PHIDs'),
-        paths: z.array(z.string()).optional().describe('Code paths to find ownership for'),
+        paths: z.array(z.array(z.string())).optional().describe('Code paths as [repositoryPHID, path] pairs (e.g. [["PHID-REPO-xxx", "/src/foo.ts"]])'),
         statuses: z.array(z.string()).optional().describe('Package statuses'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
