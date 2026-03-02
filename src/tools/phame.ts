@@ -18,6 +18,7 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
         subscribers: z.boolean().optional().describe('Include subscriber details'),
+        projects: z.boolean().optional().describe('Include tagged projects'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
@@ -41,11 +42,12 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
         phids: z.array(z.string()).optional().describe('Post PHIDs'),
         blogPHIDs: z.array(z.string()).optional().describe('Filter by blog PHIDs'),
         authorPHIDs: z.array(z.string()).optional().describe('Filter by author PHIDs'),
-        visibility: z.array(z.coerce.number()).optional().describe('Visibility: 1 (published), 0 (draft), 2 (archived). Note: use these numeric codes in search; use string names like "published" in create/edit.'),
+        visibility: z.array(z.string()).optional().describe('Visibility: "published", "draft", "archived" (or numeric: "1", "0", "2")'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
-        content: z.boolean().optional().describe('Include blog post body content'),
+        subscribers: z.boolean().optional().describe('Include subscriber details'),
+        projects: z.boolean().optional().describe('Include tagged projects'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),

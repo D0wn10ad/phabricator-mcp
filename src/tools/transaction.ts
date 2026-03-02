@@ -14,7 +14,8 @@ export function registerTransactionTools(server: McpServer, client: ConduitClien
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
       })).optional().describe('Search constraints'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const { objectIdentifier, ...searchParams } = params;

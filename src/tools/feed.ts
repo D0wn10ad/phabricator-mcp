@@ -11,8 +11,8 @@ export function registerFeedTools(server: McpServer, client: ConduitClient) {
       filterPHIDs: z.array(z.string()).optional().describe('Only show activity involving these PHIDs (user, project, task, etc.)'),
       view: z.enum(['data', 'text', 'html', 'html-summary']).optional().describe('Output format: "data" (structured, default), "text" (human-readable), "html" (rendered HTML), "html-summary" (title only)'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Cursor for pagination (chronological key from previous results)'),
-      before: z.string().optional().describe('Cursor for reverse pagination'),
+      after: z.coerce.number().optional().describe('Cursor for pagination (chronological key from previous results)'),
+      before: z.coerce.number().optional().describe('Cursor for reverse pagination'),
     },
     async (params) => {
       const result = await client.call('feed.query', params);
