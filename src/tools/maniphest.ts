@@ -129,6 +129,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       addSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to add'),
       removeSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to remove'),
       columnPHID: z.string().optional().describe('Move to workboard column'),
+      comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
       customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
         'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Use the phabricator_task_custom_fields tool to discover available fields.'
       ),
@@ -177,6 +178,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       }
       if (params.columnPHID !== undefined) {
         transactions.push({ type: 'column', value: [params.columnPHID] });
+      }
+      if (params.comment !== undefined) {
+        transactions.push({ type: 'comment', value: params.comment });
       }
       if (params.customFields !== undefined) {
         for (const [key, value] of Object.entries(params.customFields)) {

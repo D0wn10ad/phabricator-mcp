@@ -40,7 +40,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
   // Edit project
   server.tool(
     'phabricator_project_edit',
-    'Create or edit a Phabricator project. Omit objectIdentifier to create a new project.',
+    'Create or edit a Phabricator project. Omit objectIdentifier to create a new project (name is required for creation).',
     {
       objectIdentifier: z.string().optional().describe('Project PHID or ID. Omit to create a new project.'),
       name: z.string().optional().describe('New name'),
@@ -49,6 +49,9 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       color: z.string().optional().describe('New color'),
       addMemberPHIDs: z.array(z.string()).optional().describe('Add members'),
       removeMemberPHIDs: z.array(z.string()).optional().describe('Remove members'),
+      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
+      removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -71,6 +74,15 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       if (params.removeMemberPHIDs !== undefined) {
         transactions.push({ type: 'members.remove', value: params.removeMemberPHIDs });
       }
+      if (params.addSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
+      }
+      if (params.removeSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
+      }
+      if (params.comment !== undefined) {
+        transactions.push({ type: 'comment', value: params.comment });
+      }
 
       if (transactions.length === 0) {
         return { content: [{ type: 'text', text: 'No changes specified' }] };
@@ -90,6 +102,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
     'phabricator_column_search',
     'Search project workboard columns',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Column IDs'),
         phids: z.array(z.string()).optional().describe('Column PHIDs'),
