@@ -29,6 +29,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         subtaskIDs: z.array(z.coerce.number()).optional().describe('Subtask IDs'),
         hasParents: z.boolean().optional().describe('Filter to tasks that have parent tasks'),
         hasSubtasks: z.boolean().optional().describe('Filter to tasks that have subtasks'),
+        spacePHIDs: z.array(z.string()).optional().describe('Filter by Space PHIDs (for multi-space installations)'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
         columns: z.boolean().optional().describe('Include workboard column info'),
@@ -36,9 +37,10 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         subscribers: z.boolean().optional().describe('Include subscriber info'),
         'custom-fields': z.boolean().optional().describe('Include custom field values in results'),
       })).optional().describe('Data attachments to include'),
-      order: z.string().optional().describe('Result order: "priority", "updated", "newest", "oldest"'),
+      order: z.string().optional().describe('Result order: "priority", "updated", "newest", "oldest", "title", "relevance"'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Cursor for pagination'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('maniphest.search', params);
@@ -54,13 +56,14 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       title: z.string().describe('Task title'),
       description: z.string().optional().describe('Task description (supports Remarkup)'),
       ownerPHID: z.string().optional().describe('Assigned owner PHID'),
-      priority: z.string().optional().describe('Priority: unbreak, triage, high, normal, low, wish'),
+      priority: z.string().optional().describe('Priority keyword (unbreak, triage, high, normal, low, wish) or numeric value'),
       projectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to tag'),
       subscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs'),
       status: z.string().optional().describe('Initial status'),
       subtype: z.string().optional().describe('Task subtype (e.g. "default", "incident")'),
       parentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs'),
       subtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs'),
+      space: z.string().optional().describe('Space PHID to place the task in (for multi-space installations)'),
       comment: z.string().optional().describe('Initial comment on the task (supports Remarkup)'),
       customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
         'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Check your Phabricator Conduit console (conduit/method/maniphest.edit/) for available fields.'
@@ -98,6 +101,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       if (params.subtaskPHIDs !== undefined) {
         transactions.push({ type: 'subtasks.set', value: params.subtaskPHIDs });
       }
+      if (params.space !== undefined) {
+        transactions.push({ type: 'space', value: params.space });
+      }
       if (params.comment !== undefined) {
         transactions.push({ type: 'comment', value: params.comment });
       }
@@ -133,6 +139,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       addSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to add'),
       removeSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to remove'),
       columnPHID: z.string().optional().describe('Move to workboard column'),
+      space: z.string().optional().describe('Space PHID to move the task to (for multi-space installations)'),
       comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
       customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
         'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Check your Phabricator Conduit console (conduit/method/maniphest.edit/) for available fields.'
@@ -185,6 +192,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       }
       if (params.columnPHID !== undefined) {
         transactions.push({ type: 'column', value: [{ columnPHID: params.columnPHID }] });
+      }
+      if (params.space !== undefined) {
+        transactions.push({ type: 'space', value: params.space });
       }
       if (params.comment !== undefined) {
         transactions.push({ type: 'comment', value: params.comment });
