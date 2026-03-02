@@ -61,6 +61,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
     'phabricator_build_target_search',
     'Search Harbormaster build targets (individual build steps within a build)',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Target IDs'),
         phids: z.array(z.string()).optional().describe('Target PHIDs'),
@@ -81,6 +82,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
     'phabricator_build_log_search',
     'Search Harbormaster build logs (output from build steps). Use phabricator_build_target_search to find target PHIDs first.',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Log IDs'),
         phids: z.array(z.string()).optional().describe('Log PHIDs'),
@@ -102,15 +104,15 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
   // Send build command
   server.tool(
     'phabricator_build_command',
-    'Send a command to a Harbormaster build target (restart, pause, resume, or abort). Use phabricator_build_target_search to find target PHIDs.',
+    'Report build status to Harbormaster. Used by external build systems to notify Phabricator of build results. Provide the build target PHID (use phabricator_build_target_search to find it).',
     {
-      buildTargetPHID: z.string().describe('Build target PHID to send the command to. Use phabricator_build_target_search to find this.'),
-      command: z.enum(['restart', 'pause', 'resume', 'abort']).describe('Command to execute on the build'),
+      buildTargetPHID: z.string().describe('Build target PHID to send the message to. Use phabricator_build_target_search to find this.'),
+      type: z.enum(['pass', 'fail', 'work']).describe('Message type: "pass" (build succeeded), "fail" (build failed), "work" (build is still running)'),
     },
     async (params) => {
       const result = await client.call('harbormaster.sendmessage', {
         buildTargetPHID: params.buildTargetPHID,
-        type: params.command,
+        type: params.type,
       });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
