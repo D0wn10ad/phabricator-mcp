@@ -38,6 +38,9 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
         visibility: z.array(z.string()).optional().describe('Visibility: "published", "draft", "archived"'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        content: z.boolean().optional().describe('Include blog post body content'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for pagination'),

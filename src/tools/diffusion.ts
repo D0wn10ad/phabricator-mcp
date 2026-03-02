@@ -39,6 +39,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     'phabricator_commit_search',
     'Search Diffusion commits',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all", "authored"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Commit IDs'),
         phids: z.array(z.string()).optional().describe('Commit PHIDs'),
@@ -64,7 +65,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
 
   // Browse repository file tree
   server.tool(
-    'phabricator_repo_browse',
+    'phabricator_repository_browse',
     'Browse a repository directory tree at a given path and commit/branch',
     {
       path: z.string().describe('Path to browse (e.g., "/", "/src/")'),
@@ -83,7 +84,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
 
   // Read file content from repository
   server.tool(
-    'phabricator_repo_file_content',
+    'phabricator_repository_file_content',
     'Read file contents from a Diffusion repository at a given path and commit/branch',
     {
       path: z.string().describe('File path in the repository (e.g., "src/index.ts")'),
@@ -133,7 +134,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
 
   // File commit history
   server.tool(
-    'phabricator_repo_file_history',
+    'phabricator_repository_file_history',
     'Get commit history for a file path in a Diffusion repository',
     {
       path: z.string().describe('File path in the repository'),

@@ -32,14 +32,40 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
     {
       id: z.coerce.number().describe('Room ID'),
       limit: z.coerce.number().max(100).optional().describe('Maximum messages to return'),
-      after: z.string().optional().describe('Pagination cursor'),
+      offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
     async (params) => {
       const result = await client.call('conpherence.querythread', {
         ids: [params.id],
         limit: params.limit,
-        after: params.after,
+        offset: params.offset,
       });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Create a new thread
+  server.tool(
+    'phabricator_conpherence_create',
+    'Create a new Conpherence chat room/thread',
+    {
+      title: z.string().describe('Thread title'),
+      message: z.string().optional().describe('Initial message (supports Remarkup)'),
+      participantPHIDs: z.array(z.string()).optional().describe('Participant user PHIDs to add'),
+    },
+    async (params) => {
+      const transactions: Array<{ type: string; value: unknown }> = [
+        { type: 'title', value: params.title },
+      ];
+
+      if (params.message !== undefined) {
+        transactions.push({ type: 'comment', value: params.message });
+      }
+      if (params.participantPHIDs !== undefined) {
+        transactions.push({ type: 'participants.add', value: params.participantPHIDs });
+      }
+
+      const result = await client.call('conpherence.edit', { transactions });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );

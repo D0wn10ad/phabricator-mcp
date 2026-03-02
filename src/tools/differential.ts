@@ -9,7 +9,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     'phabricator_revision_search',
     'Search Differential revisions (code reviews)',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all", "active", "authored", "waiting"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "active", "authored", "waiting", "reviewable"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Revision IDs'),
         phids: z.array(z.string()).optional().describe('Revision PHIDs'),
@@ -44,7 +44,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
   // Edit revision
   server.tool(
     'phabricator_revision_edit',
-    'Edit a Differential revision',
+    'Create or edit a Differential revision. Supports actions like accept, reject, abandon, request-review, plan-changes, and commandeer. Can also add/remove reviewers, subscribers, linked tasks, and comments.',
     {
       objectIdentifier: z.string().optional().describe('Revision PHID or ID (e.g., "D123"). Omit to create a new revision.'),
       title: z.string().optional().describe('New title'),

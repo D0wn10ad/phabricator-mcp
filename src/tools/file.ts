@@ -28,6 +28,7 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
     'phabricator_file_search',
     'Search for files in Phabricator',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all", "authored"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('File IDs'),
         phids: z.array(z.string()).optional().describe('File PHIDs'),

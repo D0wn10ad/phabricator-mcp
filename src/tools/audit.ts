@@ -5,7 +5,7 @@ import { z } from 'zod';
 export function registerAuditTools(server: McpServer, client: ConduitClient) {
   // Query audits
   server.tool(
-    'phabricator_audit_search',
+    'phabricator_audit_query',
     'Search commit audit requests. Find commits needing audit, or audits by a specific user.',
     {
       auditorPHIDs: z.array(z.string()).optional().describe('Auditor user/project PHIDs'),

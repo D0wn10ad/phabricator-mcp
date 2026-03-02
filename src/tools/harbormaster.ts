@@ -90,6 +90,23 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
     },
   );
 
+  // Send build command
+  server.tool(
+    'phabricator_build_command',
+    'Send a command to a Harbormaster build (restart, pause, resume, or abort)',
+    {
+      buildPHID: z.string().describe('Build PHID to send the command to'),
+      command: z.enum(['restart', 'pause', 'resume', 'abort']).describe('Command to execute on the build'),
+    },
+    async (params) => {
+      const result = await client.call('harbormaster.sendmessage', {
+        buildTargetPHID: params.buildPHID,
+        type: params.command,
+      });
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
   // Search build plans
   server.tool(
     'phabricator_build_plan_search',
