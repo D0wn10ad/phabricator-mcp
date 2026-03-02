@@ -283,6 +283,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 |------|-------------|
 | `phabricator_document_search` | Search wiki documents |
 | `phabricator_document_edit` | Create or edit a wiki document |
+| `phabricator_document_add_comment` | Add a comment to a wiki document |
 
 ### Blogs (Phame)
 
@@ -316,7 +317,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_build_search` | Search builds (CI/build results) |
 | `phabricator_build_target_search` | Search build targets (individual build steps) |
 | `phabricator_build_log_search` | Search build logs (output from build steps) |
-| `phabricator_build_command` | Send a command to a build (restart, pause, resume, abort) |
+| `phabricator_build_command` | Report build status to Harbormaster (pass, fail, work) |
 | `phabricator_build_plan_search` | Search build plans (CI pipeline configurations) |
 
 ### Code Ownership (Owners)
@@ -337,6 +338,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 |------|-------------|
 | `phabricator_conpherence_search` | Search chat rooms/threads |
 | `phabricator_conpherence_create` | Create a new chat room/thread |
+| `phabricator_conpherence_edit` | Edit a chat room (rename, manage participants) |
 | `phabricator_conpherence_read` | Read messages from a chat thread |
 | `phabricator_conpherence_send` | Send a message to a chat thread |
 
