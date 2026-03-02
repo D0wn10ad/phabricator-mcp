@@ -26,7 +26,8 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('diffusion.repository.search', params);
@@ -46,6 +47,8 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
         repositoryPHIDs: z.array(z.string()).optional().describe('Repository PHIDs'),
         identifiers: z.array(z.string()).optional().describe('Commit identifiers (hashes)'),
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
+        responsiblePHIDs: z.array(z.string()).optional().describe('User PHIDs responsible (as author or auditor)'),
+        statuses: z.array(z.string()).optional().describe('Audit statuses: audited, needs-audit, concern-raised, partially-audited'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
@@ -55,7 +58,8 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('diffusion.commit.search', params);
