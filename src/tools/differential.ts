@@ -16,7 +16,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
         reviewerPHIDs: z.array(z.string()).optional().describe('Reviewer PHIDs'),
         repositoryPHIDs: z.array(z.string()).optional().describe('Repository PHIDs'),
-        statuses: z.array(z.string()).optional().describe('Statuses: needs-review, needs-revision, accepted, published, abandoned, changes-planned'),
+        statuses: z.array(z.string()).optional().describe('Statuses: needs-review, needs-revision, accepted, published, abandoned, changes-planned, draft'),
         responsiblePHIDs: z.array(z.string()).optional().describe('User PHIDs who are responsible (as author or reviewer)'),
         affectedPaths: z.array(z.string()).optional().describe('File paths affected by the revision'),
         createdStart: z.coerce.number().optional().describe('Created after (epoch timestamp)'),

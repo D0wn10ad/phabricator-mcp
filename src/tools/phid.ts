@@ -19,7 +19,7 @@ export function registerPhidTools(server: McpServer, client: ConduitClient) {
   // Query PHID details
   server.tool(
     'phabricator_phid_query',
-    'Get detailed information about PHIDs',
+    'Get handle information (name, URI, type, status) for PHIDs. For full object data, use application-specific search tools (e.g., phabricator_task_search, phabricator_revision_search).',
     {
       phids: z.array(z.string()).describe('PHIDs to query'),
     },

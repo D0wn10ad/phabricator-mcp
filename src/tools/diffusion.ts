@@ -216,6 +216,8 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       status: z.enum(['active', 'inactive']).optional().describe('Repository status'),
       addProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to add'),
       removeProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to remove'),
+      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
+      removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
       space: z.string().optional().describe('Space PHID (for multi-space installations)'),
     },
     async (params) => {
@@ -247,6 +249,12 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       }
       if (params.removeProjectPHIDs !== undefined) {
         transactions.push({ type: 'projects.remove', value: params.removeProjectPHIDs });
+      }
+      if (params.addSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
+      }
+      if (params.removeSubscriberPHIDs !== undefined) {
+        transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
       }
       if (params.space !== undefined) {
         transactions.push({ type: 'space', value: params.space });

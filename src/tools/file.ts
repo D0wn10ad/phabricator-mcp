@@ -11,12 +11,21 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
     {
       name: z.string().describe('Filename with extension (e.g. "screenshot.png")'),
       data_base64: z.string().describe('Base64-encoded file content'),
+      viewPolicy: z.string().optional().describe('File visibility policy (e.g., "public", "users", or a custom policy PHID)'),
+      canCDN: z.boolean().optional().describe('Whether the file can be served over CDN (for public assets)'),
     },
     async (params) => {
-      const phid = await client.call<string>('file.upload', {
+      const apiParams: Record<string, unknown> = {
         name: params.name,
         data_base64: params.data_base64,
-      });
+      };
+      if (params.viewPolicy !== undefined) {
+        apiParams.viewPolicy = params.viewPolicy;
+      }
+      if (params.canCDN !== undefined) {
+        apiParams.canCDN = params.canCDN;
+      }
+      const phid = await client.call<string>('file.upload', apiParams);
       return { content: [{ type: 'text', text: phid }] };
     },
   );
