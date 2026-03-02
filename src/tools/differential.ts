@@ -57,7 +57,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       addProjectPHIDs: z.array(z.string()).optional().describe('Add projects'),
       removeProjectPHIDs: z.array(z.string()).optional().describe('Remove projects'),
       comment: z.string().optional().describe('Add a comment'),
-      action: z.enum(['accept', 'reject', 'abandon', 'reclaim', 'request-review', 'resign', 'commandeer', 'plan-changes', 'close']).optional().describe('Revision action to take'),
+      action: z.enum(['accept', 'reject', 'abandon', 'reclaim', 'reopen', 'request-review', 'resign', 'commandeer', 'plan-changes', 'close', 'draft']).optional().describe('Revision action to take'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
       repositoryPHID: z.string().optional().describe('Repository PHID to associate with the revision'),
@@ -156,25 +156,17 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     },
   );
 
-  // Search changesets (changed files within a diff)
+  // Get changed file paths for a revision
   server.tool(
-    'phabricator_changeset_search',
-    'Search changesets (individual changed files) within a Differential diff. Use phabricator_diff_search to find the diff PHID first.',
+    'phabricator_revision_paths',
+    'Get the list of changed file paths for a Differential revision. Returns an array of file path strings.',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all"'),
-      constraints: jsonCoerce(z.object({
-        diffPHIDs: z.array(z.string()).optional().describe('Diff PHIDs to list changesets for'),
-      })).optional().describe('Search constraints'),
-      attachments: jsonCoerce(z.object({
-        hunks: z.boolean().optional().describe('Include diff hunks (actual changed content)'),
-      })).optional().describe('Data attachments'),
-      order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Cursor for next-page pagination'),
-      before: z.string().optional().describe('Cursor for previous-page pagination'),
+      revision_id: z.coerce.number().describe('Numeric revision ID (e.g., 123). Do not include the "D" prefix.'),
     },
     async (params) => {
-      const result = await client.call('differential.changeset.search', params);
+      const result = await client.call('differential.getcommitpaths', {
+        revision_id: params.revision_id,
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
