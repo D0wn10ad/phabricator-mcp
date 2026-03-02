@@ -60,7 +60,7 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [
-        { type: 'title', value: params.title },
+        { type: 'name', value: params.title },
       ];
 
       if (params.message !== undefined) {
@@ -82,6 +82,7 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
     {
       objectIdentifier: z.string().describe('Room ID or PHID'),
       title: z.string().optional().describe('New room title'),
+      topic: z.string().optional().describe('Room topic/description'),
       addParticipantPHIDs: z.array(z.string()).optional().describe('Participant PHIDs to add'),
       removeParticipantPHIDs: z.array(z.string()).optional().describe('Participant PHIDs to remove'),
       comment: z.string().optional().describe('Send a message alongside the edit (supports Remarkup)'),
@@ -90,7 +91,10 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
       const transactions: Array<{ type: string; value: unknown }> = [];
 
       if (params.title !== undefined) {
-        transactions.push({ type: 'title', value: params.title });
+        transactions.push({ type: 'name', value: params.title });
+      }
+      if (params.topic !== undefined) {
+        transactions.push({ type: 'topic', value: params.topic });
       }
       if (params.addParticipantPHIDs !== undefined) {
         transactions.push({ type: 'participants.add', value: params.addParticipantPHIDs });
