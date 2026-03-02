@@ -170,7 +170,6 @@ Add to your `~/.claude/settings.json`:
   "permissions": {
     "allow": [
       "mcp__phabricator__phabricator_task_search",
-      "mcp__phabricator__phabricator_task_custom_fields",
       "mcp__phabricator__phabricator_task_status_search",
       "mcp__phabricator__phabricator_task_priority_search",
       "mcp__phabricator__phabricator_revision_search",
@@ -226,7 +225,6 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_task_create` | Create a new task |
 | `phabricator_task_edit` | Edit an existing task |
 | `phabricator_task_add_comment` | Add a comment to a task |
-| `phabricator_task_custom_fields` | List available custom fields for tasks |
 | `phabricator_task_status_search` | List all available task statuses on the instance |
 | `phabricator_task_priority_search` | List all available task priorities on the instance |
 
@@ -235,7 +233,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | Tool | Description |
 |------|-------------|
 | `phabricator_revision_search` | Search code review revisions |
-| `phabricator_revision_edit` | Edit a revision (accept, reject, abandon, add reviewers, link tasks, comment, etc.) |
+| `phabricator_revision_edit` | Edit a revision (accept, reject, abandon, add reviewers, comment, etc.) |
 | `phabricator_revision_inline_comment` | Create an inline comment on a specific line of a diff |
 | `phabricator_diff_raw` | Get the raw diff/patch content for a diff by ID |
 | `phabricator_diff_search` | Search diffs (code change snapshots within a revision) |
