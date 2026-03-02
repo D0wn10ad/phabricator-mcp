@@ -58,7 +58,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       action: z.enum(['accept', 'reject', 'abandon', 'reclaim', 'request-review', 'resign', 'commandeer', 'plan-changes']).optional().describe('Revision action to take'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
-      addTaskPHIDs: z.array(z.string()).optional().describe('Task PHIDs to link (e.g., "fixes T123")'),
+      addTaskPHIDs: z.array(z.string()).optional().describe('Task PHIDs to link to this revision'),
       removeTaskPHIDs: z.array(z.string()).optional().describe('Task PHIDs to unlink'),
     },
     async (params) => {
@@ -136,6 +136,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     'phabricator_diff_search',
     'Search Differential diffs (code change snapshots within a revision). A revision may have multiple diffs as it gets updated.',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Diff IDs'),
         phids: z.array(z.string()).optional().describe('Diff PHIDs'),
@@ -159,9 +160,14 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     'phabricator_changeset_search',
     'Search changesets (individual changed files) within a Differential diff. Use phabricator_diff_search to find the diff PHID first.',
     {
+      queryKey: z.string().optional().describe('Built-in query: "all"'),
       constraints: jsonCoerce(z.object({
         diffPHIDs: z.array(z.string()).optional().describe('Diff PHIDs to list changesets for'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        hunks: z.boolean().optional().describe('Include diff hunks (actual changed content)'),
+      })).optional().describe('Data attachments'),
+      order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
@@ -176,7 +182,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     'phabricator_revision_inline_comment',
     'Create an inline comment on a specific line of a Differential diff. The comment will appear as a draft until the revision is submitted/commented on.',
     {
-      revisionID: z.string().describe('Revision ID (e.g., "D123" or just "123")'),
+      revisionID: z.string().describe('Numeric revision ID (e.g., "123"). Do not include the "D" prefix.'),
       diffID: z.coerce.number().describe('Diff ID to comment on. Use phabricator_diff_search to find this.'),
       filePath: z.string().describe('Path to the file being commented on'),
       lineNumber: z.coerce.number().describe('Line number in the file'),
