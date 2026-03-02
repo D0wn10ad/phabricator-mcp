@@ -31,7 +31,7 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
         ids: z.array(z.coerce.number()).optional().describe('File IDs'),
         phids: z.array(z.string()).optional().describe('File PHIDs'),
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
-        names: z.array(z.string()).optional().describe('File names'),
+        name: z.string().optional().describe('File name substring search'),
         dateCreatedStart: z.coerce.number().optional().describe('Created after (epoch timestamp)'),
         dateCreatedEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),
       })).optional().describe('Search constraints'),

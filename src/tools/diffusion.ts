@@ -44,11 +44,12 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Commit IDs'),
         phids: z.array(z.string()).optional().describe('Commit PHIDs'),
-        repositoryPHIDs: z.array(z.string()).optional().describe('Repository PHIDs'),
+        repositories: z.array(z.string()).optional().describe('Repository PHIDs'),
         identifiers: z.array(z.string()).optional().describe('Commit identifiers (hashes)'),
-        authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
+        authors: z.array(z.string()).optional().describe('Author PHIDs'),
+        auditors: z.array(z.string()).optional().describe('Auditor user/project PHIDs'),
         responsiblePHIDs: z.array(z.string()).optional().describe('User PHIDs responsible (as author or auditor)'),
-        statuses: z.array(z.string()).optional().describe('Audit statuses: audited, needs-audit, concern-raised, partially-audited'),
+        statuses: z.array(z.string()).optional().describe('Audit statuses: none, needs-audit, concern-raised, partially-audited, audited, needs-verification'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({

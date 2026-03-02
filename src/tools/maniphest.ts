@@ -19,7 +19,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         priorities: z.array(z.coerce.number()).optional().describe('Priority levels'),
         subtypes: z.array(z.string()).optional().describe('Task subtypes'),
         columnPHIDs: z.array(z.string()).optional().describe('Workboard column PHIDs'),
-        projectPHIDs: z.array(z.string()).optional().describe('Project PHIDs (tasks tagged with these projects)'),
+        projects: z.array(z.string()).optional().describe('Project PHIDs (tasks tagged with these projects)'),
         query: z.string().optional().describe('Full-text search query'),
         createdStart: z.coerce.number().optional().describe('Created after (epoch timestamp)'),
         createdEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),

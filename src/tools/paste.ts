@@ -13,7 +13,7 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Paste IDs'),
         phids: z.array(z.string()).optional().describe('Paste PHIDs'),
-        authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
+        authors: z.array(z.string()).optional().describe('Author PHIDs'),
         languages: z.array(z.string()).optional().describe('Languages'),
         statuses: z.array(z.string()).optional().describe('Statuses: active, archived'),
         query: z.string().optional().describe('Full-text search query'),

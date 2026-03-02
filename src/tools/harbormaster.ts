@@ -40,9 +40,9 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Build IDs'),
         phids: z.array(z.string()).optional().describe('Build PHIDs'),
-        buildablePHIDs: z.array(z.string()).optional().describe('Buildable PHIDs'),
-        buildPlanPHIDs: z.array(z.string()).optional().describe('Build plan PHIDs'),
-        statuses: z.array(z.string()).optional().describe('Build statuses: building, passed, failed, aborted, error, paused, deadlocked'),
+        buildables: z.array(z.string()).optional().describe('Buildable PHIDs'),
+        plans: z.array(z.string()).optional().describe('Build plan PHIDs'),
+        statuses: z.array(z.string()).optional().describe('Build statuses: building, passed, failed, aborted, error, paused'),
         initiatorPHIDs: z.array(z.string()).optional().describe('PHIDs of users/objects that initiated the build'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
@@ -158,8 +158,8 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Build plan IDs'),
         phids: z.array(z.string()).optional().describe('Build plan PHIDs'),
-        statuses: z.array(z.string()).optional().describe('Plan statuses'),
-        query: z.string().optional().describe('Full-text search query'),
+        statuses: z.array(z.string()).optional().describe('Plan statuses: "active", "disabled"'),
+        match: z.string().optional().describe('Search for build plans by name substring'),
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
