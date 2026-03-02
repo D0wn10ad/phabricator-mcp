@@ -58,6 +58,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       action: z.enum(['accept', 'reject', 'abandon', 'reclaim', 'request-review', 'resign', 'commandeer', 'plan-changes']).optional().describe('Revision action to take'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      repositoryPHID: z.string().optional().describe('Repository PHID to associate with the revision'),
       addTaskPHIDs: z.array(z.string()).optional().describe('Task PHIDs to link to this revision'),
       removeTaskPHIDs: z.array(z.string()).optional().describe('Task PHIDs to unlink'),
     },
@@ -89,13 +90,16 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         transactions.push({ type: 'comment', value: params.comment });
       }
       if (params.action !== undefined) {
-        transactions.push({ type: params.action, value: true });
+        transactions.push({ type: 'action', value: params.action });
       }
       if (params.addSubscriberPHIDs !== undefined) {
         transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
       }
       if (params.removeSubscriberPHIDs !== undefined) {
         transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
+      }
+      if (params.repositoryPHID !== undefined) {
+        transactions.push({ type: 'repositoryPHID', value: params.repositoryPHID });
       }
       if (params.addTaskPHIDs !== undefined) {
         transactions.push({ type: 'tasks.add', value: params.addTaskPHIDs });
@@ -180,7 +184,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
   // Create inline comment on a diff
   server.tool(
     'phabricator_revision_inline_comment',
-    'Create an inline comment on a specific line of a Differential diff. The comment will appear as a draft until the revision is submitted/commented on.',
+    'Create an inline comment on a specific line of a Differential diff. The comment will appear as a draft — publish it by calling phabricator_revision_edit with a comment on the same revision.',
     {
       revisionID: z.coerce.number().describe('Numeric revision ID (e.g., 123). Do not include the "D" prefix.'),
       diffID: z.coerce.number().describe('Diff ID to comment on. Use phabricator_diff_search to find this.'),
