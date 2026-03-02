@@ -26,6 +26,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         columns: z.boolean().optional().describe('Include workboard column info'),
         projects: z.boolean().optional().describe('Include project info'),
         subscribers: z.boolean().optional().describe('Include subscriber info'),
+        customFields: z.boolean().optional().describe('Include custom field values in results'),
       })).optional().describe('Data attachments to include'),
       order: z.string().optional().describe('Result order: "priority", "updated", "newest", "oldest"'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
@@ -49,6 +50,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       projectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to tag'),
       subscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs'),
       status: z.string().optional().describe('Initial status'),
+      customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
+        'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Use the phabricator_task_custom_fields tool to discover available fields.'
+      ),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [
@@ -73,6 +77,11 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       if (params.status !== undefined) {
         transactions.push({ type: 'status', value: params.status });
       }
+      if (params.customFields !== undefined) {
+        for (const [key, value] of Object.entries(params.customFields)) {
+          transactions.push({ type: key, value });
+        }
+      }
 
       const result = await client.call('maniphest.edit', { transactions });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
@@ -95,6 +104,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
       columnPHID: z.string().optional().describe('Move to workboard column'),
+      customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
+        'Custom field transactions. Keys are transaction types (e.g. "custom.my-field"), values are the field values. Use the phabricator_task_custom_fields tool to discover available fields.'
+      ),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -128,6 +140,11 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       }
       if (params.columnPHID !== undefined) {
         transactions.push({ type: 'column', value: [params.columnPHID] });
+      }
+      if (params.customFields !== undefined) {
+        for (const [key, value] of Object.entries(params.customFields)) {
+          transactions.push({ type: key, value });
+        }
       }
 
       if (transactions.length === 0) {
