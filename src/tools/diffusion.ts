@@ -56,6 +56,8 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
         unreachable: z.boolean().optional().describe('Include unreachable commits'),
         permanent: z.boolean().optional().describe('Filter by permanent (reachable from any permanent ref) status'),
         ancestorsOf: z.array(z.string()).optional().describe('Find ancestors of these commit identifiers'),
+        subscribers: z.array(z.string()).optional().describe('Subscriber user/project PHIDs'),
+        projects: z.array(z.string()).optional().describe('Project PHIDs'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({

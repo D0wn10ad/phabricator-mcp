@@ -37,6 +37,9 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
         explicit: z.boolean().optional().describe('Filter to explicitly uploaded files only'),
         subscribers: z.array(z.string()).optional().describe('Subscriber user/project PHIDs'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        subscribers: z.boolean().optional().describe('Include subscriber details'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for next-page pagination'),

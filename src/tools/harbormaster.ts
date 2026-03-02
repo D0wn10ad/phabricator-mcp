@@ -40,7 +40,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         buildables: z.array(z.string()).optional().describe('Buildable PHIDs'),
         plans: z.array(z.string()).optional().describe('Build plan PHIDs'),
         statuses: z.array(z.string()).optional().describe('Build statuses: building, passed, failed, aborted, error, paused'),
-        initiatorPHIDs: z.array(z.string()).optional().describe('PHIDs of users/objects that initiated the build'),
+        initiators: z.array(z.string()).optional().describe('PHIDs of users/objects that initiated the build'),
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),

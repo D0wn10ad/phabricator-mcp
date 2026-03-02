@@ -16,9 +16,8 @@ export function registerOwnersTools(server: McpServer, client: ConduitClient) {
         owners: z.array(z.string()).optional().describe('Owner user or project PHIDs'),
         repositories: z.array(z.string()).optional().describe('Repository PHIDs'),
         paths: z.array(z.string()).optional().describe('Code paths to search for (e.g. "/src/foo.ts")'),
+        name: z.string().optional().describe('Search for packages by name substring'),
         statuses: z.array(z.string()).optional().describe('Package statuses'),
-        dominion: z.array(z.string()).optional().describe('Ownership strength: "strong" (default) or "weak"'),
-        autoReview: z.array(z.string()).optional().describe('Auto-review setting: "none", "subscribe", "review", "block"'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({

@@ -17,6 +17,9 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
         parentPaths: z.array(z.string()).optional().describe('Parent paths (direct children only)'),
         ancestorPaths: z.array(z.string()).optional().describe('Ancestor paths to search under (any depth)'),
         statuses: z.array(z.string()).optional().describe('Document statuses'),
+        subscribers: z.array(z.string()).optional().describe('Subscriber user/project PHIDs'),
+        projects: z.array(z.string()).optional().describe('Project PHIDs'),
+        spaces: z.array(z.string()).optional().describe('Space PHIDs (for multi-space installations)'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({

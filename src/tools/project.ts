@@ -26,6 +26,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         maxDepth: z.coerce.number().optional().describe('Maximum project depth'),
         subtypes: z.array(z.string()).optional().describe('Project subtypes'),
         colors: z.array(z.string()).optional().describe('Project colors'),
+        spaces: z.array(z.string()).optional().describe('Space PHIDs (for multi-space installations)'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({

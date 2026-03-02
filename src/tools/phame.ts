@@ -13,7 +13,9 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Blog IDs'),
         phids: z.array(z.string()).optional().describe('Blog PHIDs'),
-        statuses: z.array(z.string()).optional().describe('Blog statuses'),
+        statuses: z.array(z.string()).optional().describe('Blog statuses (may not be supported on all instances)'),
+        subscribers: z.array(z.string()).optional().describe('Subscriber user/project PHIDs'),
+        projects: z.array(z.string()).optional().describe('Project PHIDs'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
@@ -41,8 +43,9 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
         ids: z.array(z.coerce.number()).optional().describe('Post IDs'),
         phids: z.array(z.string()).optional().describe('Post PHIDs'),
         blogPHIDs: z.array(z.string()).optional().describe('Filter by blog PHIDs'),
-        authorPHIDs: z.array(z.string()).optional().describe('Filter by author PHIDs'),
         visibility: z.array(z.string()).optional().describe('Visibility: "published", "draft", "archived" (or numeric: "1", "0", "2")'),
+        subscribers: z.array(z.string()).optional().describe('Subscriber user/project PHIDs'),
+        projects: z.array(z.string()).optional().describe('Project PHIDs'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
