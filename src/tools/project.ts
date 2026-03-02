@@ -22,6 +22,10 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         icons: z.array(z.string()).optional().describe('Filter by project icon'),
         isMilestone: z.boolean().optional().describe('Filter milestones'),
         isRoot: z.boolean().optional().describe('Filter root projects'),
+        minDepth: z.coerce.number().optional().describe('Minimum project depth (0 = root)'),
+        maxDepth: z.coerce.number().optional().describe('Maximum project depth'),
+        subtypes: z.array(z.string()).optional().describe('Project subtypes'),
+        colors: z.array(z.string()).optional().describe('Project colors'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
@@ -127,9 +131,6 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         phids: z.array(z.string()).optional().describe('Column PHIDs'),
         projects: z.array(z.string()).optional().describe('Project PHIDs'),
       })).optional().describe('Search constraints'),
-      attachments: jsonCoerce(z.object({
-        items: z.boolean().optional().describe('Include items (tasks) in each column'),
-      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for next-page pagination'),

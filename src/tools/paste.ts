@@ -16,6 +16,8 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
         authors: z.array(z.string()).optional().describe('Author PHIDs'),
         languages: z.array(z.string()).optional().describe('Languages'),
         statuses: z.array(z.string()).optional().describe('Statuses: active, archived'),
+        createdStart: z.coerce.number().optional().describe('Created after (epoch timestamp)'),
+        createdEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({

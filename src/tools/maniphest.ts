@@ -30,6 +30,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         hasParents: z.boolean().optional().describe('Filter to tasks that have open parent tasks'),
         hasSubtasks: z.boolean().optional().describe('Filter to tasks that have open subtasks'),
         spacePHIDs: z.array(z.string()).optional().describe('Filter by Space PHIDs (for multi-space installations)'),
+        closedStart: z.coerce.number().optional().describe('Closed after (epoch timestamp)'),
+        closedEnd: z.coerce.number().optional().describe('Closed before (epoch timestamp)'),
+        closerPHIDs: z.array(z.string()).optional().describe('PHIDs of users who closed the task'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
         columns: z.boolean().optional().describe('Include workboard column info'),

@@ -22,7 +22,6 @@ export function registerOwnersTools(server: McpServer, client: ConduitClient) {
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
-        owners: z.boolean().optional().describe('Include owner details'),
         paths: z.boolean().optional().describe('Include owned paths'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
