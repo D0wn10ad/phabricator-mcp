@@ -20,10 +20,13 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
         content: z.boolean().optional().describe('Include document content'),
+        subscribers: z.boolean().optional().describe('Include subscriber details'),
+        projects: z.boolean().optional().describe('Include tagged projects'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('phriction.document.search', params);

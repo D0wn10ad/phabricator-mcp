@@ -32,10 +32,13 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
         phids: z.array(z.string()).optional().describe('File PHIDs'),
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
         names: z.array(z.string()).optional().describe('File names'),
+        dateCreatedStart: z.coerce.number().optional().describe('Created after (epoch timestamp)'),
+        dateCreatedEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('file.search', params);

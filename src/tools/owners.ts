@@ -17,6 +17,8 @@ export function registerOwnersTools(server: McpServer, client: ConduitClient) {
         repositoryPHIDs: z.array(z.string()).optional().describe('Repository PHIDs'),
         paths: z.array(z.array(z.string())).optional().describe('Code paths as [repositoryPHID, path] pairs (e.g. [["PHID-REPO-xxx", "/src/foo.ts"]])'),
         statuses: z.array(z.string()).optional().describe('Package statuses'),
+        dominion: z.array(z.string()).optional().describe('Ownership strength: "strong" (default) or "weak"'),
+        autoReview: z.array(z.string()).optional().describe('Auto-review setting: "none", "subscribe", "review", "block"'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
@@ -25,7 +27,8 @@ export function registerOwnersTools(server: McpServer, client: ConduitClient) {
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('owners.search', params);

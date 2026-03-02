@@ -30,6 +30,8 @@ export function registerUserTools(server: McpServer, client: ConduitClient) {
         isDisabled: z.boolean().optional().describe('Filter by disabled status'),
         isBot: z.boolean().optional().describe('Filter by bot status'),
         isMailingList: z.boolean().optional().describe('Filter by mailing list status'),
+        createdStart: z.coerce.number().optional().describe('Created after (epoch timestamp)'),
+        createdEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       attachments: jsonCoerce(z.object({
@@ -37,7 +39,8 @@ export function registerUserTools(server: McpServer, client: ConduitClient) {
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
-      after: z.string().optional().describe('Pagination cursor'),
+      after: z.string().optional().describe('Cursor for next-page pagination'),
+      before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
       const result = await client.call('user.search', params);
