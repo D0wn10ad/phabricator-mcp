@@ -28,7 +28,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         ancestors: z.boolean().optional().describe('Include ancestors'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -95,8 +95,11 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         phids: z.array(z.string()).optional().describe('Column PHIDs'),
         projects: z.array(z.string()).optional().describe('Project PHIDs'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        items: z.boolean().optional().describe('Include items (tasks) in each column'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

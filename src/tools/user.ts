@@ -36,7 +36,7 @@ export function registerUserTools(server: McpServer, client: ConduitClient) {
         availability: z.boolean().optional().describe('Include availability info'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

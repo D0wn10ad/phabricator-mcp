@@ -36,7 +36,7 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
         names: z.array(z.string()).optional().describe('File names'),
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -48,10 +48,10 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
   // Get file info
   server.tool(
     'phabricator_file_info',
-    'Get metadata about a file (name, size, MIME type, URI). Use the returned URI to download.',
+    'Get metadata about a file (name, size, MIME type, URI). Use the returned URI to download. Provide at least one of id or phid.',
     {
-      id: z.coerce.number().optional().describe('File ID'),
-      phid: z.string().optional().describe('File PHID'),
+      id: z.coerce.number().optional().describe('File ID (provide this or phid)'),
+      phid: z.string().optional().describe('File PHID (provide this or id)'),
     },
     async (params) => {
       const result = await client.call('file.info', params);

@@ -22,7 +22,7 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
         content: z.boolean().optional().describe('Include document content'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

@@ -32,7 +32,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         'reviewers-extra': z.boolean().optional().describe('Include detailed reviewer info with status (accepted, rejected, etc.)'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order: "newest", "oldest", "updated", "relevance"'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -44,9 +44,9 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
   // Edit revision
   server.tool(
     'phabricator_revision_edit',
-    'Create or edit a Differential revision. Supports actions like accept, reject, abandon, request-review, plan-changes, and commandeer. Can also add/remove reviewers, subscribers, linked tasks, and comments.',
+    'Edit a Differential revision. Supports actions like accept, reject, abandon, request-review, plan-changes, and commandeer. Can also add/remove reviewers, subscribers, linked tasks, and comments.',
     {
-      objectIdentifier: z.string().optional().describe('Revision PHID or ID (e.g., "D123"). Omit to create a new revision.'),
+      objectIdentifier: z.string().describe('Revision PHID or ID (e.g., "D123")'),
       title: z.string().optional().describe('New title'),
       summary: z.string().optional().describe('New summary'),
       testPlan: z.string().optional().describe('New test plan'),
@@ -108,18 +108,17 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         return { content: [{ type: 'text', text: 'No changes specified' }] };
       }
 
-      const apiParams: Record<string, unknown> = { transactions };
-      if (params.objectIdentifier !== undefined) {
-        apiParams.objectIdentifier = params.objectIdentifier;
-      }
-      const result = await client.call('differential.revision.edit', apiParams);
+      const result = await client.call('differential.revision.edit', {
+        objectIdentifier: params.objectIdentifier,
+        transactions,
+      });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
 
   // Get raw diff content
   server.tool(
-    'phabricator_raw_diff',
+    'phabricator_diff_raw',
     'Get the raw diff/patch content for a Differential diff by diff ID. Use phabricator_diff_search to find the diff ID from a revision PHID first.',
     {
       diffID: z.coerce.number().describe('The diff ID (numeric, e.g., 1392561). Use phabricator_diff_search to find this from a revision.'),
@@ -146,7 +145,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         commits: z.boolean().optional().describe('Include commit info'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order: "newest", "oldest"'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -163,7 +162,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       constraints: jsonCoerce(z.object({
         diffPHIDs: z.array(z.string()).optional().describe('Diff PHIDs to list changesets for'),
       })).optional().describe('Search constraints'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

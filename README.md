@@ -175,7 +175,7 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_task_priority_search",
       "mcp__phabricator__phabricator_revision_search",
       "mcp__phabricator__phabricator_diff_search",
-      "mcp__phabricator__phabricator_raw_diff",
+      "mcp__phabricator__phabricator_diff_raw",
       "mcp__phabricator__phabricator_changeset_search",
       "mcp__phabricator__phabricator_repository_search",
       "mcp__phabricator__phabricator_commit_search",
@@ -184,7 +184,7 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_branch_search",
       "mcp__phabricator__phabricator_tag_search",
       "mcp__phabricator__phabricator_repository_file_history",
-      "mcp__phabricator__phabricator_code_search",
+      "mcp__phabricator__phabricator_repository_code_search",
       "mcp__phabricator__phabricator_user_whoami",
       "mcp__phabricator__phabricator_user_search",
       "mcp__phabricator__phabricator_project_search",
@@ -235,9 +235,9 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | Tool | Description |
 |------|-------------|
 | `phabricator_revision_search` | Search code review revisions |
-| `phabricator_revision_edit` | Create or edit a revision (accept, reject, abandon, add reviewers, link tasks, comment, etc.) |
+| `phabricator_revision_edit` | Edit a revision (accept, reject, abandon, add reviewers, link tasks, comment, etc.) |
 | `phabricator_revision_inline_comment` | Create an inline comment on a specific line of a diff |
-| `phabricator_raw_diff` | Get the raw diff/patch content for a diff by ID |
+| `phabricator_diff_raw` | Get the raw diff/patch content for a diff by ID |
 | `phabricator_diff_search` | Search diffs (code change snapshots within a revision) |
 | `phabricator_changeset_search` | Search changesets (individual changed files within a diff) |
 
@@ -252,7 +252,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | `phabricator_branch_search` | List branches in a repository |
 | `phabricator_tag_search` | List tags in a repository |
 | `phabricator_repository_file_history` | Get commit history for a file path |
-| `phabricator_code_search` | Search (grep) file contents within a repository |
+| `phabricator_repository_code_search` | Search (grep) file contents within a repository |
 
 ### Users
 

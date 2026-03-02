@@ -23,7 +23,7 @@ export function registerOwnersTools(server: McpServer, client: ConduitClient) {
         paths: z.boolean().optional().describe('Include owned paths'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

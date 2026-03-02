@@ -25,7 +25,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
         projects: z.boolean().optional().describe('Include projects'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -54,7 +54,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
         auditors: z.boolean().optional().describe('Include auditor info'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -108,7 +108,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     {
       repository: z.string().describe('Repository callsign, short name, or PHID'),
       contains: z.string().optional().describe('Only branches containing this commit'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
     async (params) => {
@@ -123,7 +123,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     'List tags in a Diffusion repository',
     {
       repository: z.string().describe('Repository callsign, short name, or PHID'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
     async (params) => {
@@ -140,7 +140,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       path: z.string().describe('File path in the repository'),
       repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
       commit: z.string().optional().describe('Commit hash or branch to start from (default: HEAD)'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
     async (params) => {
@@ -151,14 +151,14 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
 
   // Search file contents in repository
   server.tool(
-    'phabricator_code_search',
+    'phabricator_repository_code_search',
     'Search (grep) file contents within a Diffusion repository',
     {
       path: z.string().optional().describe('Directory path to search within (default: root)'),
       repository: z.string().describe('Repository callsign, short name, or PHID'),
       query: z.string().describe('Search query / pattern'),
       commit: z.string().optional().describe('Commit hash or branch (default: HEAD)'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
     async (params) => {

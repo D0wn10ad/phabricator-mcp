@@ -11,7 +11,7 @@ export function registerAuditTools(server: McpServer, client: ConduitClient) {
       auditorPHIDs: z.array(z.string()).optional().describe('Auditor user/project PHIDs'),
       commitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to check audit status for'),
       status: z.string().optional().describe('Audit status filter: "audit-none", "audit-needs-audit", "audit-accepted", "audit-concern-raised", "audit-requested"'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
     },
     async (params) => {

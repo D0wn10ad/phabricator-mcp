@@ -17,8 +17,11 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         containerPHIDs: z.array(z.string()).optional().describe('Container PHIDs'),
         statuses: z.array(z.string()).optional().describe('Buildable statuses'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        builds: z.boolean().optional().describe('Include builds for each buildable'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -40,8 +43,11 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         buildPlanPHIDs: z.array(z.string()).optional().describe('Build plan PHIDs'),
         statuses: z.array(z.string()).optional().describe('Build statuses: building, passed, failed, aborted, error, paused, deadlocked'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        targets: z.boolean().optional().describe('Include build targets for each build'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -61,7 +67,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         buildPHIDs: z.array(z.string()).optional().describe('Build PHIDs'),
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -80,8 +86,11 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         phids: z.array(z.string()).optional().describe('Log PHIDs'),
         buildTargetPHIDs: z.array(z.string()).optional().describe('Build target PHIDs'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        content: z.boolean().optional().describe('Include actual log text content'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
@@ -93,14 +102,14 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
   // Send build command
   server.tool(
     'phabricator_build_command',
-    'Send a command to a Harbormaster build (restart, pause, resume, or abort)',
+    'Send a command to a Harbormaster build target (restart, pause, resume, or abort). Use phabricator_build_target_search to find target PHIDs.',
     {
-      buildPHID: z.string().describe('Build PHID to send the command to'),
+      buildTargetPHID: z.string().describe('Build target PHID to send the command to. Use phabricator_build_target_search to find this.'),
       command: z.enum(['restart', 'pause', 'resume', 'abort']).describe('Command to execute on the build'),
     },
     async (params) => {
       const result = await client.call('harbormaster.sendmessage', {
-        buildTargetPHID: params.buildPHID,
+        buildTargetPHID: params.buildTargetPHID,
         type: params.command,
       });
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
@@ -120,7 +129,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         query: z.string().optional().describe('Full-text search query'),
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {

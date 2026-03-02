@@ -15,8 +15,11 @@ export function registerConpherenceTools(server: McpServer, client: ConduitClien
         phids: z.array(z.string()).optional().describe('Room PHIDs'),
         participants: z.array(z.string()).optional().describe('Participant user PHIDs'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        participants: z.boolean().optional().describe('Include participant details'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
-      limit: z.coerce.number().max(100).optional().describe('Maximum results'),
+      limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Pagination cursor'),
     },
     async (params) => {
