@@ -44,7 +44,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
   // Edit revision
   server.tool(
     'phabricator_revision_edit',
-    'Edit a Differential revision. Supports actions like accept, reject, abandon, request-review, plan-changes, and commandeer. Can also add/remove reviewers, subscribers, linked tasks, and comments.',
+    'Edit a Differential revision. Supports actions like accept, reject, abandon, request-review, plan-changes, and commandeer. Can also add/remove reviewers, subscribers, and comments.',
     {
       objectIdentifier: z.string().describe('Revision PHID or ID (e.g., "D123")'),
       title: z.string().optional().describe('New title'),
@@ -59,8 +59,6 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
       repositoryPHID: z.string().optional().describe('Repository PHID to associate with the revision'),
-      addTaskPHIDs: z.array(z.string()).optional().describe('Task PHIDs to link to this revision'),
-      removeTaskPHIDs: z.array(z.string()).optional().describe('Task PHIDs to unlink'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -101,13 +99,6 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       if (params.repositoryPHID !== undefined) {
         transactions.push({ type: 'repositoryPHID', value: params.repositoryPHID });
       }
-      if (params.addTaskPHIDs !== undefined) {
-        transactions.push({ type: 'tasks.add', value: params.addTaskPHIDs });
-      }
-      if (params.removeTaskPHIDs !== undefined) {
-        transactions.push({ type: 'tasks.remove', value: params.removeTaskPHIDs });
-      }
-
       if (transactions.length === 0) {
         return { content: [{ type: 'text', text: 'No changes specified' }] };
       }
