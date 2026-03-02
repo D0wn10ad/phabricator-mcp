@@ -120,6 +120,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       ownerPHID: z.string().nullable().optional().describe('New owner PHID (null to unassign)'),
       priority: z.string().optional().describe('New priority'),
       status: z.string().optional().describe('New status: open, resolved, wontfix, invalid, spite, duplicate'),
+      subtype: z.string().optional().describe('Task subtype (e.g. "default", "incident")'),
       addProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to add'),
       removeProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to remove'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
@@ -151,6 +152,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       }
       if (params.status !== undefined) {
         transactions.push({ type: 'status', value: params.status });
+      }
+      if (params.subtype !== undefined) {
+        transactions.push({ type: 'subtype', value: params.subtype });
       }
       if (params.addProjectPHIDs !== undefined) {
         transactions.push({ type: 'projects.add', value: params.addProjectPHIDs });

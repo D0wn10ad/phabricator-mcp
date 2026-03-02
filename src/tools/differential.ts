@@ -182,7 +182,7 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
     'phabricator_revision_inline_comment',
     'Create an inline comment on a specific line of a Differential diff. The comment will appear as a draft until the revision is submitted/commented on.',
     {
-      revisionID: z.string().describe('Numeric revision ID (e.g., "123"). Do not include the "D" prefix.'),
+      revisionID: z.coerce.number().describe('Numeric revision ID (e.g., 123). Do not include the "D" prefix.'),
       diffID: z.coerce.number().describe('Diff ID to comment on. Use phabricator_diff_search to find this.'),
       filePath: z.string().describe('Path to the file being commented on'),
       lineNumber: z.coerce.number().describe('Line number in the file'),
