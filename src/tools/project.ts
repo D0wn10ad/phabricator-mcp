@@ -9,7 +9,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
     'phabricator_project_search',
     'Search Phabricator projects',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all", "active", "joined", "watching"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "active" (non-archived), "joined", "watching"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Project IDs'),
         phids: z.array(z.string()).optional().describe('Project PHIDs'),
@@ -19,7 +19,6 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         watchers: z.array(z.string()).optional().describe('Watcher user PHIDs'),
         ancestors: z.array(z.string()).optional().describe('Ancestor project PHIDs'),
         parents: z.array(z.string()).optional().describe('Parent project PHIDs (find subprojects)'),
-        status: z.string().optional().describe('Project status: "active" (default), "archived"'),
         icons: z.array(z.string()).optional().describe('Filter by project icon'),
         isMilestone: z.boolean().optional().describe('Filter milestones'),
         isRoot: z.boolean().optional().describe('Filter root projects'),
@@ -53,6 +52,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
     {
       objectIdentifier: z.string().optional().describe('Project PHID or ID. Omit to create a new project.'),
       name: z.string().optional().describe('New name'),
+      description: z.string().optional().describe('Project description (supports Remarkup)'),
       icon: z.string().optional().describe('New icon'),
       color: z.string().optional().describe('New color'),
       addMemberPHIDs: z.array(z.string()).optional().describe('Add members'),
@@ -61,13 +61,15 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       parent: z.string().optional().describe('Parent project PHID (to create as a subproject)'),
       milestone: z.string().optional().describe('Parent project PHID (to create as a milestone of that project)'),
       slug: z.string().optional().describe('Project URL slug (replaces ALL existing slugs with this one)'),
-      comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
 
       if (params.name !== undefined) {
         transactions.push({ type: 'name', value: params.name });
+      }
+      if (params.description !== undefined) {
+        transactions.push({ type: 'description', value: params.description });
       }
       if (params.space !== undefined) {
         transactions.push({ type: 'space', value: params.space });
@@ -92,9 +94,6 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       }
       if (params.removeMemberPHIDs !== undefined) {
         transactions.push({ type: 'members.remove', value: params.removeMemberPHIDs });
-      }
-      if (params.comment !== undefined) {
-        transactions.push({ type: 'comment', value: params.comment });
       }
 
       if (transactions.length === 0) {

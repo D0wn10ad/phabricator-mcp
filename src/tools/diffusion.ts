@@ -17,8 +17,6 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
         shortNames: z.array(z.string()).optional().describe('Repository short names'),
         types: z.array(z.string()).optional().describe('VCS types: git, hg, svn'),
         uris: z.array(z.string()).optional().describe('Repository URIs'),
-        status: z.string().optional().describe('Repository status: "open" (active) or "closed" (inactive)'),
-        hosted: z.string().optional().describe('Hosting: "phabricator" (hosted) or "remote"'),
         projects: z.array(z.string()).optional().describe('Project PHIDs'),
         spaces: z.array(z.string()).optional().describe('Space PHIDs (for multi-space installations)'),
         query: z.string().optional().describe('Full-text search query'),
@@ -65,7 +63,6 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       attachments: jsonCoerce(z.object({
         projects: z.boolean().optional().describe('Include projects'),
         subscribers: z.boolean().optional().describe('Include subscribers'),
-        auditors: z.boolean().optional().describe('Include auditor info'),
       })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
@@ -81,12 +78,11 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
   // Browse repository file tree
   server.tool(
     'phabricator_repository_browse',
-    'Browse a repository directory tree at a given path and commit/branch',
+    'Browse a repository directory tree at a given path and commit/branch. Pass a branch name via the commit parameter.',
     {
       path: z.string().optional().describe('Path to browse (default: "/")'),
       repository: z.string().optional().describe('Repository callsign, short name, or PHID'),
-      commit: z.string().optional().describe('Commit hash or branch name (default: HEAD)'),
-      branch: z.string().optional().describe('Branch name'),
+      commit: z.string().optional().describe('Commit hash or branch name (default: HEAD). Pass branch names here.'),
       needValidityOnly: z.boolean().optional().describe('Only check path validity without loading the full tree'),
       limit: z.coerce.number().optional().describe('Maximum entries to return'),
       offset: z.coerce.number().optional().describe('Result offset for pagination'),
@@ -207,7 +203,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     },
     async (params) => {
       const result = await client.call('diffusion.searchquery', {
-        path: params.path ?? '/',
+        path: params.path ?? '',
         repository: params.repository,
         grep: params.query,
         commit: params.commit,

@@ -13,7 +13,6 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Blog IDs'),
         phids: z.array(z.string()).optional().describe('Blog PHIDs'),
-        statuses: z.string().optional().describe('Blog status: "active" or "archived"'),
         subscribers: z.array(z.string()).optional().describe('Subscriber user/project PHIDs'),
         projects: z.array(z.string()).optional().describe('Project PHIDs'),
         query: z.string().optional().describe('Full-text search query'),
@@ -48,7 +47,6 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       status: z.string().optional().describe('Blog status'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
-      comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -79,9 +77,6 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       }
       if (params.removeSubscriberPHIDs !== undefined) {
         transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
-      }
-      if (params.comment !== undefined) {
-        transactions.push({ type: 'comment', value: params.comment });
       }
 
       if (transactions.length === 0) {

@@ -6,10 +6,9 @@ import { jsonCoerce } from './coerce.js';
 export function registerTransactionTools(server: McpServer, client: ConduitClient) {
   server.tool(
     'phabricator_transaction_search',
-    'Search transactions (comments, status changes, etc.) on any Phabricator object (e.g., "D123", "T456")',
+    'Search transactions (comments, status changes, etc.) on a Phabricator object (e.g., "D123", "T456")',
     {
-      objectIdentifier: z.string().optional().describe('Object ID (e.g., "D123", "T456") or PHID. Provide this or objectType, not both.'),
-      objectType: z.string().optional().describe('Object type group to query (e.g., "TASK", "DREV", "CMIT"). Queries all transactions of that type. Provide this or objectIdentifier, not both.'),
+      objectIdentifier: z.string().describe('Object ID (e.g., "D123", "T456") or PHID to get transactions for'),
       constraints: jsonCoerce(z.object({
         phids: z.array(z.string()).optional().describe('Transaction PHIDs'),
         authorPHIDs: z.array(z.string()).optional().describe('Author PHIDs'),
@@ -19,12 +18,7 @@ export function registerTransactionTools(server: McpServer, client: ConduitClien
       before: z.string().optional().describe('Cursor for previous-page pagination'),
     },
     async (params) => {
-      const { objectIdentifier, objectType, ...searchParams } = params;
-      const result = await client.call('transaction.search', {
-        objectIdentifier,
-        objectType,
-        ...searchParams,
-      });
+      const result = await client.call('transaction.search', params);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );

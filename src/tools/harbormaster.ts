@@ -67,13 +67,6 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         ids: z.array(z.coerce.number()).optional().describe('Target IDs'),
         phids: z.array(z.string()).optional().describe('Target PHIDs'),
         buildPHIDs: z.array(z.string()).optional().describe('Build PHIDs'),
-        statuses: z.array(z.string()).optional().describe('Target statuses'),
-        createdStart: z.coerce.number().optional().describe('Created after (epoch timestamp)'),
-        createdEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),
-        startedStart: z.coerce.number().optional().describe('Started executing after (epoch timestamp)'),
-        startedEnd: z.coerce.number().optional().describe('Started executing before (epoch timestamp)'),
-        completedStart: z.coerce.number().optional().describe('Completed after (epoch timestamp)'),
-        completedEnd: z.coerce.number().optional().describe('Completed before (epoch timestamp)'),
       })).optional().describe('Search constraints'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
@@ -111,10 +104,10 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
   // Send build command
   server.tool(
     'phabricator_build_command',
-    'Send a command to Harbormaster. For build targets: report status (pass/fail/work) with optional unit/lint results. For builds/buildables: send control commands (pause/resume/abort/restart).',
+    'Send a command to a Harbormaster build target. Report build status (pass/fail/work) with optional unit test and lint results.',
     {
-      receiver: z.string().describe('PHID of build target, build, or buildable to send the message to'),
-      type: z.enum(['pass', 'fail', 'work', 'pause', 'resume', 'abort', 'restart']).describe('Message type: "pass"/"fail"/"work" for build targets; "pause"/"resume"/"abort"/"restart" for builds/buildables'),
+      buildTargetPHID: z.string().describe('PHID of the build target (PHID-HMBT-...) to send the message to'),
+      type: z.enum(['pass', 'fail', 'work']).describe('Message type: "pass" (target passed), "fail" (target failed), "work" (target still working, resets timeout)'),
       unit: jsonCoerce(z.array(z.object({
         name: z.string().describe('Test name'),
         result: z.string().describe('Result: "pass", "fail", "skip", "broken", "unsound"'),
@@ -138,7 +131,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
     },
     async (params) => {
       const apiParams: Record<string, unknown> = {
-        receiver: params.receiver,
+        buildTargetPHID: params.buildTargetPHID,
         type: params.type,
       };
       if (params.unit !== undefined) {
