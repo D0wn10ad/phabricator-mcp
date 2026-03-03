@@ -43,6 +43,9 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         statuses: z.array(z.string()).optional().describe('Build statuses: building, passed, failed, aborted, error, paused'),
         initiators: z.array(z.string()).optional().describe('PHIDs of users/objects that initiated the build'),
       })).optional().describe('Search constraints'),
+      attachments: jsonCoerce(z.object({
+        querybuilds: z.boolean().optional().describe('Include build query data'),
+      })).optional().describe('Data attachments'),
       order: z.string().optional().describe('Result order'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for next-page pagination'),

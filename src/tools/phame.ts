@@ -13,7 +13,6 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Blog IDs'),
         phids: z.array(z.string()).optional().describe('Blog PHIDs'),
-        statuses: z.array(z.string()).optional().describe('Blog statuses (may not be supported on all instances)'),
         subscribers: z.array(z.string()).optional().describe('Subscriber user/project PHIDs'),
         projects: z.array(z.string()).optional().describe('Project PHIDs'),
         query: z.string().optional().describe('Full-text search query'),
@@ -42,7 +41,7 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       name: z.string().optional().describe('Blog name'),
       subtitle: z.string().optional().describe('Blog subtitle'),
       description: z.string().optional().describe('Blog description (Remarkup)'),
-      fullDomain: z.string().optional().describe('Custom full domain for the blog'),
+      domainFullURI: z.string().optional().describe('Custom full domain URI for the blog'),
       parentSite: z.string().optional().describe('Parent site name'),
       parentDomain: z.string().optional().describe('Parent domain URL'),
       status: z.string().optional().describe('Blog status'),
@@ -62,8 +61,8 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       if (params.description !== undefined) {
         transactions.push({ type: 'description', value: params.description });
       }
-      if (params.fullDomain !== undefined) {
-        transactions.push({ type: 'fullDomain', value: params.fullDomain });
+      if (params.domainFullURI !== undefined) {
+        transactions.push({ type: 'domainFullURI', value: params.domainFullURI });
       }
       if (params.parentSite !== undefined) {
         transactions.push({ type: 'parentSite', value: params.parentSite });

@@ -29,6 +29,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         subtaskIDs: z.array(z.coerce.number()).optional().describe('Subtask IDs'),
         hasParents: z.boolean().optional().describe('true: only tasks with open parent tasks. false: only tasks without. Omit to show all.'),
         hasSubtasks: z.boolean().optional().describe('true: only tasks with open subtasks. false: only tasks without. Omit to show all.'),
+        subscribers: z.array(z.string()).optional().describe('Subscriber user/project PHIDs'),
         spaces: z.array(z.string()).optional().describe('Filter by Space PHIDs (for multi-space installations)'),
         closedStart: z.coerce.number().optional().describe('Closed after (epoch timestamp)'),
         closedEnd: z.coerce.number().optional().describe('Closed before (epoch timestamp)'),
@@ -65,6 +66,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       subtype: z.string().optional().describe('Task subtype (e.g. "default", "incident")'),
       parentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs'),
       subtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs'),
+      points: z.coerce.number().nullable().optional().describe('Story points value (if points are enabled on this instance)'),
       space: z.string().optional().describe('Space PHID to place the task in (for multi-space installations)'),
       comment: z.string().optional().describe('Initial comment on the task (supports Remarkup)'),
       customFields: jsonCoerce(z.record(z.string(), z.unknown())).optional().describe(
@@ -103,6 +105,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       if (params.subtaskPHIDs !== undefined) {
         transactions.push({ type: 'subtasks.set', value: params.subtaskPHIDs });
       }
+      if (params.points !== undefined) {
+        transactions.push({ type: 'points', value: params.points });
+      }
       if (params.space !== undefined) {
         transactions.push({ type: 'space', value: params.space });
       }
@@ -140,6 +145,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       removeParentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs to remove'),
       addSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to add'),
       removeSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to remove'),
+      points: z.coerce.number().nullable().optional().describe('Story points value (null to clear)'),
       columnPHID: z.string().optional().describe('Move to workboard column'),
       space: z.string().optional().describe('Space PHID to move the task to (for multi-space installations)'),
       comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
@@ -191,6 +197,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       }
       if (params.removeSubtaskPHIDs !== undefined) {
         transactions.push({ type: 'subtasks.remove', value: params.removeSubtaskPHIDs });
+      }
+      if (params.points !== undefined) {
+        transactions.push({ type: 'points', value: params.points });
       }
       if (params.columnPHID !== undefined) {
         transactions.push({ type: 'column', value: [{ columnPHID: params.columnPHID }] });

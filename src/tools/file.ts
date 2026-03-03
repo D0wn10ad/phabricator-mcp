@@ -9,16 +9,18 @@ export function registerFileTools(server: McpServer, client: ConduitClient) {
     'phabricator_file_upload',
     'Upload a file to Phabricator. Returns a file PHID that can be used with phabricator_file_info to get the file ID for embedding in Remarkup via {F<id>}.',
     {
-      name: z.string().describe('Filename with extension (e.g. "screenshot.png")'),
+      name: z.string().optional().describe('Filename with extension (e.g. "screenshot.png")'),
       data_base64: z.string().describe('Base64-encoded file content'),
       viewPolicy: z.string().optional().describe('File visibility policy (e.g., "public", "users", or a custom policy PHID)'),
       canCDN: z.boolean().optional().describe('Whether the file can be served over CDN (for public assets)'),
     },
     async (params) => {
       const apiParams: Record<string, unknown> = {
-        name: params.name,
         data_base64: params.data_base64,
       };
+      if (params.name !== undefined) {
+        apiParams.name = params.name;
+      }
       if (params.viewPolicy !== undefined) {
         apiParams.viewPolicy = params.viewPolicy;
       }

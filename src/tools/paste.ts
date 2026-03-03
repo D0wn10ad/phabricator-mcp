@@ -49,6 +49,7 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       language: z.string().optional().describe('Syntax highlighting language'),
       status: z.string().optional().describe('Status: active or archived'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
+      addProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to tag'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [
@@ -66,6 +67,9 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       }
       if (params.addSubscriberPHIDs !== undefined) {
         transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
+      }
+      if (params.addProjectPHIDs !== undefined) {
+        transactions.push({ type: 'projects.add', value: params.addProjectPHIDs });
       }
 
       const result = await client.call('paste.edit', { transactions });
@@ -85,6 +89,8 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       status: z.string().optional().describe('Status: active or archived'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
+      addProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to add'),
+      removeProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to remove'),
       comment: z.string().optional().describe('Add a comment alongside the edit (supports Remarkup)'),
     },
     async (params) => {
@@ -107,6 +113,12 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
       }
       if (params.removeSubscriberPHIDs !== undefined) {
         transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
+      }
+      if (params.addProjectPHIDs !== undefined) {
+        transactions.push({ type: 'projects.add', value: params.addProjectPHIDs });
+      }
+      if (params.removeProjectPHIDs !== undefined) {
+        transactions.push({ type: 'projects.remove', value: params.removeProjectPHIDs });
       }
       if (params.comment !== undefined) {
         transactions.push({ type: 'comment', value: params.comment });

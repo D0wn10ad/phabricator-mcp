@@ -17,6 +17,8 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
         shortNames: z.array(z.string()).optional().describe('Repository short names'),
         types: z.array(z.string()).optional().describe('VCS types: git, hg, svn'),
         uris: z.array(z.string()).optional().describe('Repository URIs'),
+        status: z.string().optional().describe('Repository status: "open" (active) or "closed" (inactive)'),
+        hosted: z.string().optional().describe('Hosting: "phabricator" (hosted) or "remote"'),
         projects: z.array(z.string()).optional().describe('Project PHIDs'),
         spaces: z.array(z.string()).optional().describe('Space PHIDs (for multi-space installations)'),
         query: z.string().optional().describe('Full-text search query'),
@@ -232,8 +234,6 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       status: z.enum(['active', 'inactive']).optional().describe('Repository status'),
       addProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to add'),
       removeProjectPHIDs: z.array(z.string()).optional().describe('Project PHIDs to remove'),
-      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
-      removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
       space: z.string().optional().describe('Space PHID (for multi-space installations)'),
     },
     async (params) => {
@@ -265,12 +265,6 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
       }
       if (params.removeProjectPHIDs !== undefined) {
         transactions.push({ type: 'projects.remove', value: params.removeProjectPHIDs });
-      }
-      if (params.addSubscriberPHIDs !== undefined) {
-        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
-      }
-      if (params.removeSubscriberPHIDs !== undefined) {
-        transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
       }
       if (params.space !== undefined) {
         transactions.push({ type: 'space', value: params.space });

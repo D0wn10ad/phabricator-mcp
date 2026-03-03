@@ -19,6 +19,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         watchers: z.array(z.string()).optional().describe('Watcher user PHIDs'),
         ancestors: z.array(z.string()).optional().describe('Ancestor project PHIDs'),
         parents: z.array(z.string()).optional().describe('Parent project PHIDs (find subprojects)'),
+        status: z.string().optional().describe('Project status: "active" (default), "archived"'),
         icons: z.array(z.string()).optional().describe('Filter by project icon'),
         isMilestone: z.boolean().optional().describe('Filter milestones'),
         isRoot: z.boolean().optional().describe('Filter root projects'),
@@ -52,13 +53,10 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
     {
       objectIdentifier: z.string().optional().describe('Project PHID or ID. Omit to create a new project.'),
       name: z.string().optional().describe('New name'),
-      description: z.string().optional().describe('New description'),
       icon: z.string().optional().describe('New icon'),
       color: z.string().optional().describe('New color'),
       addMemberPHIDs: z.array(z.string()).optional().describe('Add members'),
       removeMemberPHIDs: z.array(z.string()).optional().describe('Remove members'),
-      addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
-      removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
       space: z.string().optional().describe('Space PHID (for multi-space installations)'),
       parent: z.string().optional().describe('Parent project PHID (to create as a subproject)'),
       milestone: z.string().optional().describe('Parent project PHID (to create as a milestone of that project)'),
@@ -83,9 +81,6 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       if (params.slug !== undefined) {
         transactions.push({ type: 'slugs', value: [params.slug] });
       }
-      if (params.description !== undefined) {
-        transactions.push({ type: 'description', value: params.description });
-      }
       if (params.icon !== undefined) {
         transactions.push({ type: 'icon', value: params.icon });
       }
@@ -97,12 +92,6 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
       }
       if (params.removeMemberPHIDs !== undefined) {
         transactions.push({ type: 'members.remove', value: params.removeMemberPHIDs });
-      }
-      if (params.addSubscriberPHIDs !== undefined) {
-        transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
-      }
-      if (params.removeSubscriberPHIDs !== undefined) {
-        transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
       }
       if (params.comment !== undefined) {
         transactions.push({ type: 'comment', value: params.comment });

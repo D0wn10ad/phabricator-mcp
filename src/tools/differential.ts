@@ -58,10 +58,17 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
       addProjectPHIDs: z.array(z.string()).optional().describe('Add projects'),
       removeProjectPHIDs: z.array(z.string()).optional().describe('Remove projects'),
       comment: z.string().optional().describe('Add a comment'),
-      action: z.enum(['accept', 'reject', 'abandon', 'reclaim', 'reopen', 'request-review', 'resign', 'commandeer', 'plan-changes', 'close', 'draft']).optional().describe('Revision action to take'),
+      action: z.enum(['accept', 'reject', 'abandon', 'reclaim', 'reopen', 'request-review', 'resign', 'commandeer', 'plan-changes', 'close']).optional().describe('Revision action to take. Each action is sent as its own transaction type with value true.'),
+      draft: z.boolean().optional().describe('Hold revision as draft (true) or release from draft (false)'),
       addSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to add'),
       removeSubscriberPHIDs: z.array(z.string()).optional().describe('Subscriber PHIDs to remove'),
       repositoryPHID: z.string().optional().describe('Repository PHID to associate with the revision'),
+      addTaskPHIDs: z.array(z.string()).optional().describe('Maniphest task PHIDs to associate'),
+      removeTaskPHIDs: z.array(z.string()).optional().describe('Maniphest task PHIDs to remove'),
+      addParentPHIDs: z.array(z.string()).optional().describe('Parent revision PHIDs to add (dependencies)'),
+      removeParentPHIDs: z.array(z.string()).optional().describe('Parent revision PHIDs to remove'),
+      addChildPHIDs: z.array(z.string()).optional().describe('Child revision PHIDs to add (dependents)'),
+      removeChildPHIDs: z.array(z.string()).optional().describe('Child revision PHIDs to remove'),
     },
     async (params) => {
       const transactions: Array<{ type: string; value: unknown }> = [];
@@ -94,7 +101,10 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         transactions.push({ type: 'comment', value: params.comment });
       }
       if (params.action !== undefined) {
-        transactions.push({ type: 'action', value: params.action });
+        transactions.push({ type: params.action, value: true });
+      }
+      if (params.draft !== undefined) {
+        transactions.push({ type: 'draft', value: params.draft });
       }
       if (params.addSubscriberPHIDs !== undefined) {
         transactions.push({ type: 'subscribers.add', value: params.addSubscriberPHIDs });
@@ -103,7 +113,25 @@ export function registerDifferentialTools(server: McpServer, client: ConduitClie
         transactions.push({ type: 'subscribers.remove', value: params.removeSubscriberPHIDs });
       }
       if (params.repositoryPHID !== undefined) {
-        transactions.push({ type: 'repository', value: params.repositoryPHID });
+        transactions.push({ type: 'repositoryPHID', value: params.repositoryPHID });
+      }
+      if (params.addTaskPHIDs !== undefined) {
+        transactions.push({ type: 'tasks.add', value: params.addTaskPHIDs });
+      }
+      if (params.removeTaskPHIDs !== undefined) {
+        transactions.push({ type: 'tasks.remove', value: params.removeTaskPHIDs });
+      }
+      if (params.addParentPHIDs !== undefined) {
+        transactions.push({ type: 'parents.add', value: params.addParentPHIDs });
+      }
+      if (params.removeParentPHIDs !== undefined) {
+        transactions.push({ type: 'parents.remove', value: params.removeParentPHIDs });
+      }
+      if (params.addChildPHIDs !== undefined) {
+        transactions.push({ type: 'children.add', value: params.addChildPHIDs });
+      }
+      if (params.removeChildPHIDs !== undefined) {
+        transactions.push({ type: 'children.remove', value: params.removeChildPHIDs });
       }
       if (transactions.length === 0) {
         return { content: [{ type: 'text', text: 'No changes specified' }] };
