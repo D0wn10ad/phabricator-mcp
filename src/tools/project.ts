@@ -18,7 +18,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
         members: z.array(z.string()).optional().describe('Member user PHIDs'),
         watchers: z.array(z.string()).optional().describe('Watcher user PHIDs'),
         ancestors: z.array(z.string()).optional().describe('Ancestor project PHIDs'),
-        parentPHIDs: z.array(z.string()).optional().describe('Parent project PHIDs (find subprojects)'),
+        parents: z.array(z.string()).optional().describe('Parent project PHIDs (find subprojects)'),
         icons: z.array(z.string()).optional().describe('Filter by project icon'),
         isMilestone: z.boolean().optional().describe('Filter milestones'),
         isRoot: z.boolean().optional().describe('Filter root projects'),
