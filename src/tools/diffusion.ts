@@ -44,7 +44,7 @@ export function registerDiffusionTools(server: McpServer, client: ConduitClient)
     'phabricator_commit_search',
     'Search Diffusion commits',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all", "authored"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "active", "authored", "audited"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Commit IDs'),
         phids: z.array(z.string()).optional().describe('Commit PHIDs'),

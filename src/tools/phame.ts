@@ -9,7 +9,7 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
     'phabricator_blog_search',
     'Search Phame blogs',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all", "active"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "active", "archived"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Blog IDs'),
         phids: z.array(z.string()).optional().describe('Blog PHIDs'),
@@ -101,12 +101,12 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
     'phabricator_blog_post_search',
     'Search Phame blog posts',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all", "live"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "live", "draft", "archived"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Post IDs'),
         phids: z.array(z.string()).optional().describe('Post PHIDs'),
         blogPHIDs: z.array(z.string()).optional().describe('Filter by blog PHIDs'),
-        visibility: z.array(z.coerce.number()).optional().describe('Visibility values: 0 (draft), 1 (published), 2 (archived)'),
+        visibility: z.array(z.string()).optional().describe('Visibility values: "0" (draft), "1" (published), "2" (archived)'),
         subscribers: z.array(z.string()).optional().describe('Subscriber user/project PHIDs'),
         projects: z.array(z.string()).optional().describe('Project PHIDs'),
         query: z.string().optional().describe('Full-text search query'),

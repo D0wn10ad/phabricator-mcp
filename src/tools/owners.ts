@@ -9,7 +9,7 @@ export function registerOwnersTools(server: McpServer, client: ConduitClient) {
     'phabricator_owners_search',
     'Search Owners packages (code ownership). Find who owns a code path or list ownership packages.',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all", "active"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "active", "authority"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Package IDs'),
         phids: z.array(z.string()).optional().describe('Package PHIDs'),

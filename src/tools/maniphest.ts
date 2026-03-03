@@ -9,7 +9,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
     'phabricator_task_search',
     'Search Maniphest tasks with optional filters',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all", "open", "authored", "assigned"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "open", "authored", "assigned", "subscribed"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Task IDs to search for'),
         phids: z.array(z.string()).optional().describe('Task PHIDs to search for'),
@@ -40,7 +40,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         projects: z.boolean().optional().describe('Include project info'),
         subscribers: z.boolean().optional().describe('Include subscriber info'),
       })).optional().describe('Data attachments to include'),
-      order: z.string().optional().describe('Result order: "priority", "updated", "newest", "oldest", "title", "relevance"'),
+      order: z.string().optional().describe('Result order: "priority", "updated", "outdated", "newest", "oldest", "closed", "title", "relevance"'),
       limit: z.coerce.number().max(100).optional().describe('Maximum results (max 100)'),
       after: z.string().optional().describe('Cursor for next-page pagination'),
       before: z.string().optional().describe('Cursor for previous-page pagination'),
@@ -66,6 +66,7 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       subtype: z.string().optional().describe('Task subtype (e.g. "default", "incident")'),
       parentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs'),
       subtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs'),
+      commitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to associate'),
       points: z.coerce.number().nullable().optional().describe('Story points value (if points are enabled on this instance)'),
       space: z.string().optional().describe('Space PHID to place the task in (for multi-space installations)'),
       comment: z.string().optional().describe('Initial comment on the task (supports Remarkup)'),
@@ -104,6 +105,9 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       }
       if (params.subtaskPHIDs !== undefined) {
         transactions.push({ type: 'subtasks.set', value: params.subtaskPHIDs });
+      }
+      if (params.commitPHIDs !== undefined) {
+        transactions.push({ type: 'commits.set', value: params.commitPHIDs });
       }
       if (params.points !== undefined) {
         transactions.push({ type: 'points', value: params.points });
@@ -145,6 +149,8 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       removeParentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs to remove'),
       addSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to add'),
       removeSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to remove'),
+      addCommitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to associate'),
+      removeCommitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to disassociate'),
       points: z.coerce.number().nullable().optional().describe('Story points value (null to clear)'),
       columnPHID: z.string().optional().describe('Move to workboard column'),
       space: z.string().optional().describe('Space PHID to move the task to (for multi-space installations)'),
@@ -197,6 +203,12 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       }
       if (params.removeSubtaskPHIDs !== undefined) {
         transactions.push({ type: 'subtasks.remove', value: params.removeSubtaskPHIDs });
+      }
+      if (params.addCommitPHIDs !== undefined) {
+        transactions.push({ type: 'commits.add', value: params.addCommitPHIDs });
+      }
+      if (params.removeCommitPHIDs !== undefined) {
+        transactions.push({ type: 'commits.remove', value: params.removeCommitPHIDs });
       }
       if (params.points !== undefined) {
         transactions.push({ type: 'points', value: params.points });

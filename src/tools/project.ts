@@ -9,7 +9,7 @@ export function registerProjectTools(server: McpServer, client: ConduitClient) {
     'phabricator_project_search',
     'Search Phabricator projects',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all", "active", "joined"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "active", "joined", "watching"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Project IDs'),
         phids: z.array(z.string()).optional().describe('Project PHIDs'),

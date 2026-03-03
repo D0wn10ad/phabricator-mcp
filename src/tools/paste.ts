@@ -9,7 +9,7 @@ export function registerPasteTools(server: McpServer, client: ConduitClient) {
     'phabricator_paste_search',
     'Search Phabricator pastes',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all", "authored"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "active", "authored"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Paste IDs'),
         phids: z.array(z.string()).optional().describe('Paste PHIDs'),

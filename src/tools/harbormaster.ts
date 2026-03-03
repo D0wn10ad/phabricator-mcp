@@ -34,7 +34,7 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
     'phabricator_build_search',
     'Search Harbormaster builds (CI/build results)',
     {
-      queryKey: z.string().optional().describe('Built-in query: "all"'),
+      queryKey: z.string().optional().describe('Built-in query: "all", "initiated", "waiting", "active", "completed"'),
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Build IDs'),
         phids: z.array(z.string()).optional().describe('Build PHIDs'),
@@ -123,13 +123,14 @@ export function registerHarbormasterTools(server: McpServer, client: ConduitClie
         duration: z.coerce.number().optional().describe('Duration in seconds'),
         path: z.string().optional().describe('File path related to the test'),
         coverage: z.record(z.string(), z.string()).optional().describe('Coverage data as {path: "NNCUUUC..."} where N=not executable, C=covered, U=uncovered'),
+        format: z.string().optional().describe('Format for details field: "text" (default) or "remarkup"'),
         details: z.string().optional().describe('Additional details or failure message'),
       }))).optional().describe('Unit test results to report'),
       lint: jsonCoerce(z.array(z.object({
         name: z.string().describe('Lint message name'),
         code: z.string().describe('Lint rule code'),
         severity: z.string().describe('Severity: "advice", "autofix", "warning", "error", "disabled"'),
-        path: z.string().optional().describe('File path'),
+        path: z.string().describe('File path'),
         line: z.coerce.number().optional().describe('Line number'),
         char: z.coerce.number().optional().describe('Character offset'),
         description: z.string().optional().describe('Lint message description'),
