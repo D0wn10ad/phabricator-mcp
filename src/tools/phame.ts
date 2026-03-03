@@ -13,6 +13,7 @@ export function registerPhameTools(server: McpServer, client: ConduitClient) {
       constraints: jsonCoerce(z.object({
         ids: z.array(z.coerce.number()).optional().describe('Blog IDs'),
         phids: z.array(z.string()).optional().describe('Blog PHIDs'),
+        statuses: z.string().optional().describe('Blog status: "active" or "archived"'),
         subscribers: z.array(z.string()).optional().describe('Subscriber user/project PHIDs'),
         projects: z.array(z.string()).optional().describe('Project PHIDs'),
         query: z.string().optional().describe('Full-text search query'),

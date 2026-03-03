@@ -31,6 +31,7 @@ export function registerUserTools(server: McpServer, client: ConduitClient) {
         isBot: z.boolean().optional().describe('Filter by bot status'),
         isMailingList: z.boolean().optional().describe('Filter by mailing list status'),
         needsApproval: z.boolean().optional().describe('Filter to users awaiting admin approval'),
+        mfa: z.boolean().optional().describe('Filter by MFA enrollment status (admin-only)'),
         createdStart: z.coerce.number().optional().describe('Created after (epoch timestamp)'),
         createdEnd: z.coerce.number().optional().describe('Created before (epoch timestamp)'),
         query: z.string().optional().describe('Full-text search query'),
