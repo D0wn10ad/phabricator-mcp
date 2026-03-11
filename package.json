@@ -1,5 +1,5 @@
 {
-  "name": "@freelancercom/phabricator-mcp",
+  "name": "@D0wn10ad/phabricator-mcp",
   "version": "2.0.16",
   "description": "MCP server for Phabricator Conduit API - manage tasks, code reviews, repositories, and more",
   "type": "module",
@@ -29,12 +29,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/freelancer/phabricator-mcp.git"
+    "url": "git+https://github.com/D0wn10ad/phabricator-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/freelancer/phabricator-mcp/issues"
+    "url": "https://github.com/D0wn10ad/phabricator-mcp/issues"
   },
-  "homepage": "https://github.com/freelancer/phabricator-mcp#readme",
+  "homepage": "https://github.com/D0wn10ad/phabricator-mcp#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "zod": "^3.23.0"
