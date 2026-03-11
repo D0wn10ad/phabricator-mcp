@@ -75,6 +75,72 @@ async function linkRevisionsToTask(
   return results;
 }
 
+/**
+ * Phabricator custom fields are only editable when the task's subtype matches
+ * the form that exposes them. For example, `custom.postmortem.*` fields require
+ * subtype "postmortem", while `custom.incident.*` fields require "incident".
+ *
+ * This function groups custom field transactions by required subtype, temporarily
+ * switches the task's subtype to set each group, then restores the original subtype.
+ */
+const SUBTYPE_FIELD_PREFIXES: Record<string, string> = {
+  'custom.postmortem.': 'postmortem',
+  'custom.incident.': 'incident',
+};
+
+async function applyCustomFields(
+  client: ConduitClient,
+  objectIdentifier: string,
+  customFields: Record<string, unknown>,
+  currentSubtype?: string,
+): Promise<unknown> {
+  // Group fields by required subtype
+  const groups = new Map<string | null, Array<{ type: string; value: unknown }>>();
+
+  for (const [key, value] of Object.entries(customFields)) {
+    let requiredSubtype: string | null = null;
+    for (const [prefix, subtype] of Object.entries(SUBTYPE_FIELD_PREFIXES)) {
+      if (key.startsWith(prefix)) {
+        requiredSubtype = subtype;
+        break;
+      }
+    }
+    const group = groups.get(requiredSubtype) ?? [];
+    group.push({ type: key, value });
+    groups.set(requiredSubtype, group);
+  }
+
+  const results: Record<string, unknown> = {};
+  let lastSubtype = currentSubtype;
+
+  for (const [requiredSubtype, transactions] of groups) {
+    // Switch subtype if needed
+    if (requiredSubtype !== null && requiredSubtype !== lastSubtype) {
+      await client.call('maniphest.edit', {
+        objectIdentifier,
+        transactions: [{ type: 'subtype', value: requiredSubtype }],
+      });
+      lastSubtype = requiredSubtype;
+    }
+
+    const result = await client.call('maniphest.edit', {
+      objectIdentifier,
+      transactions,
+    });
+    results[requiredSubtype ?? 'default'] = result;
+  }
+
+  // Restore original subtype if we changed it
+  if (lastSubtype !== currentSubtype && currentSubtype !== undefined) {
+    await client.call('maniphest.edit', {
+      objectIdentifier,
+      transactions: [{ type: 'subtype', value: currentSubtype }],
+    });
+  }
+
+  return results;
+}
+
 export function registerManiphestTools(server: McpServer, client: ConduitClient) {
   // Search tasks
   server.tool(
@@ -197,19 +263,14 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
 
       // Custom fields are applied in a second call because Phabricator validates
       // transaction types against the default subtype during creation. Subtype-specific
-      // custom fields (e.g. incident fields) are only available after the task exists
-      // with the correct subtype.
-      if (params.customFields !== undefined) {
-        const customTransactions: Array<{ type: string; value: unknown }> = [];
-        for (const [key, value] of Object.entries(params.customFields)) {
-          customTransactions.push({ type: key, value });
-        }
-        if (customTransactions.length > 0) {
-          extras.customFields = await client.call('maniphest.edit', {
-            objectIdentifier: result.object.phid,
-            transactions: customTransactions,
-          });
-        }
+      // custom fields (e.g. postmortem fields) require temporarily switching the subtype.
+      if (params.customFields !== undefined && Object.keys(params.customFields).length > 0) {
+        extras.customFields = await applyCustomFields(
+          client,
+          result.object.phid,
+          params.customFields,
+          params.subtype,
+        );
       }
 
       // Link revisions to the newly created task via differential.revision.edit
@@ -319,19 +380,16 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       if (params.comment !== undefined) {
         transactions.push({ type: 'comment', value: params.comment });
       }
-      if (params.customFields !== undefined) {
-        for (const [key, value] of Object.entries(params.customFields)) {
-          transactions.push({ type: key, value });
-        }
-      }
-
+      const hasCustomFields = params.customFields !== undefined && Object.keys(params.customFields).length > 0;
       const hasRevisionChanges =
         (params.addRevisionIDs !== undefined && params.addRevisionIDs.length > 0) ||
         (params.removeRevisionIDs !== undefined && params.removeRevisionIDs.length > 0);
 
-      if (transactions.length === 0 && !hasRevisionChanges) {
+      if (transactions.length === 0 && !hasCustomFields && !hasRevisionChanges) {
         return { content: [{ type: 'text', text: 'No changes specified' }] };
       }
+
+      const extras: Record<string, unknown> = {};
 
       let result: unknown = undefined;
       if (transactions.length > 0) {
@@ -341,19 +399,29 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
         });
       }
 
+      // Custom fields may require subtype switching (e.g. postmortem fields
+      // need subtype "postmortem"). applyCustomFields handles this automatically.
+      if (hasCustomFields) {
+        extras.customFields = await applyCustomFields(
+          client,
+          params.objectIdentifier,
+          params.customFields!,
+          params.subtype,
+        );
+      }
+
       // Link/unlink revisions via differential.revision.edit
-      const revisionResults: { added?: unknown[]; removed?: unknown[] } = {};
       if (params.addRevisionIDs !== undefined && params.addRevisionIDs.length > 0) {
         const revPHIDs = await resolveRevisionPHIDs(client, params.addRevisionIDs);
-        revisionResults.added = await linkRevisionsToTask(client, params.objectIdentifier, revPHIDs, 'add');
+        extras.addedRevisions = await linkRevisionsToTask(client, params.objectIdentifier, revPHIDs, 'add');
       }
       if (params.removeRevisionIDs !== undefined && params.removeRevisionIDs.length > 0) {
         const revPHIDs = await resolveRevisionPHIDs(client, params.removeRevisionIDs);
-        revisionResults.removed = await linkRevisionsToTask(client, params.objectIdentifier, revPHIDs, 'remove');
+        extras.removedRevisions = await linkRevisionsToTask(client, params.objectIdentifier, revPHIDs, 'remove');
       }
 
-      const output = hasRevisionChanges
-        ? { ...(result !== undefined ? { task: result } : {}), linkedRevisions: revisionResults }
+      const output = Object.keys(extras).length > 0
+        ? { ...(result !== undefined ? { task: result } : {}), ...extras }
         : result;
 
       return { content: [{ type: 'text', text: JSON.stringify(output, null, 2) }] };
