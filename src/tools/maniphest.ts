@@ -191,28 +191,36 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       if (params.comment !== undefined) {
         transactions.push({ type: 'comment', value: params.comment });
       }
+      const result = await client.call<{ object: { phid: string; id: number } }>('maniphest.edit', { transactions });
+
+      const extras: Record<string, unknown> = {};
+
+      // Custom fields are applied in a second call because Phabricator validates
+      // transaction types against the default subtype during creation. Subtype-specific
+      // custom fields (e.g. incident fields) are only available after the task exists
+      // with the correct subtype.
       if (params.customFields !== undefined) {
+        const customTransactions: Array<{ type: string; value: unknown }> = [];
         for (const [key, value] of Object.entries(params.customFields)) {
-          transactions.push({ type: key, value });
+          customTransactions.push({ type: key, value });
+        }
+        if (customTransactions.length > 0) {
+          extras.customFields = await client.call('maniphest.edit', {
+            objectIdentifier: result.object.phid,
+            transactions: customTransactions,
+          });
         }
       }
-
-      const result = await client.call<{ object: { phid: string; id: number } }>('maniphest.edit', { transactions });
 
       // Link revisions to the newly created task via differential.revision.edit
       if (params.revisionIDs !== undefined && params.revisionIDs.length > 0) {
         const revPHIDs = await resolveRevisionPHIDs(client, params.revisionIDs);
         const taskId = `T${result.object.id}`;
-        const linkResults = await linkRevisionsToTask(client, taskId, revPHIDs, 'add');
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({ ...result, linkedRevisions: linkResults }, null, 2),
-          }],
-        };
+        extras.linkedRevisions = await linkRevisionsToTask(client, taskId, revPHIDs, 'add');
       }
 
-      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+      const output = Object.keys(extras).length > 0 ? { ...result, ...extras } : result;
+      return { content: [{ type: 'text', text: JSON.stringify(output, null, 2) }] };
     },
   );
 
