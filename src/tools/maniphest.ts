@@ -3,6 +3,144 @@ import type { ConduitClient } from '../client/conduit.js';
 import { z } from 'zod';
 import { jsonCoerce } from './coerce.js';
 
+/**
+ * Resolve revision identifiers (e.g. "D223125", "PHID-DREV-xxx") to PHIDs.
+ * Accepts a mix of D-prefixed IDs and raw PHIDs.
+ */
+async function resolveRevisionPHIDs(client: ConduitClient, ids: string[]): Promise<string[]> {
+  const phids: string[] = [];
+  const namesToLookup: string[] = [];
+
+  for (const id of ids) {
+    if (id.startsWith('PHID-')) {
+      phids.push(id);
+    } else {
+      // Normalize to D-prefixed format if just a number
+      const name = /^\d+$/.test(id) ? `D${id}` : id;
+      namesToLookup.push(name);
+    }
+  }
+
+  if (namesToLookup.length > 0) {
+    const lookupResult = await client.call<Record<string, { phid: string }>>(
+      'phid.lookup',
+      { names: namesToLookup },
+    );
+    for (const name of namesToLookup) {
+      const entry = lookupResult[name];
+      if (entry) {
+        phids.push(entry.phid);
+      } else {
+        throw new Error(`Could not resolve revision identifier: ${name}`);
+      }
+    }
+  }
+
+  return phids;
+}
+
+/**
+ * Link or unlink revisions to/from a task by calling differential.revision.edit
+ * with tasks.add / tasks.remove transactions.
+ */
+async function linkRevisionsToTask(
+  client: ConduitClient,
+  taskIdentifier: string,
+  revisionPHIDs: string[],
+  action: 'add' | 'remove',
+): Promise<unknown[]> {
+  // Resolve the task identifier to a PHID if it's a T-prefixed ID
+  let taskPHID = taskIdentifier;
+  if (!taskIdentifier.startsWith('PHID-')) {
+    const lookupResult = await client.call<Record<string, { phid: string }>>(
+      'phid.lookup',
+      { names: [taskIdentifier] },
+    );
+    const entry = lookupResult[taskIdentifier];
+    if (entry) {
+      taskPHID = entry.phid;
+    } else {
+      throw new Error(`Could not resolve task identifier: ${taskIdentifier}`);
+    }
+  }
+
+  const results: unknown[] = [];
+  for (const revPHID of revisionPHIDs) {
+    const result = await client.call('differential.revision.edit', {
+      objectIdentifier: revPHID,
+      transactions: [{ type: `tasks.${action}`, value: [taskPHID] }],
+    });
+    results.push(result);
+  }
+  return results;
+}
+
+/**
+ * Phabricator custom fields are only editable when the task's subtype matches
+ * the form that exposes them. For example, `custom.postmortem.*` fields require
+ * subtype "postmortem", while `custom.incident.*` fields require "incident".
+ *
+ * This function groups custom field transactions by required subtype, temporarily
+ * switches the task's subtype to set each group, then restores the original subtype.
+ */
+const SUBTYPE_FIELD_PREFIXES: Record<string, string> = {
+  'custom.postmortem.': 'postmortem',
+  'custom.incident.': 'incident',
+};
+
+async function applyCustomFields(
+  client: ConduitClient,
+  objectIdentifier: string,
+  customFields: Record<string, unknown>,
+  currentSubtype?: string,
+): Promise<unknown> {
+  // Group fields by required subtype
+  const groups = new Map<string | null, Array<{ type: string; value: unknown }>>();
+
+  for (const [key, value] of Object.entries(customFields)) {
+    let requiredSubtype: string | null = null;
+    for (const [prefix, subtype] of Object.entries(SUBTYPE_FIELD_PREFIXES)) {
+      if (key.startsWith(prefix)) {
+        requiredSubtype = subtype;
+        break;
+      }
+    }
+    const group = groups.get(requiredSubtype) ?? [];
+    group.push({ type: key, value });
+    groups.set(requiredSubtype, group);
+  }
+
+  const results: Record<string, unknown> = {};
+  let lastSubtype = currentSubtype;
+
+  for (const [requiredSubtype, transactions] of groups) {
+    // Switch subtype if needed
+    if (requiredSubtype !== null && requiredSubtype !== lastSubtype) {
+      await client.call('maniphest.edit', {
+        objectIdentifier,
+        transactions: [{ type: 'subtype', value: requiredSubtype }],
+      });
+      lastSubtype = requiredSubtype;
+    }
+
+    const result = await client.call('maniphest.edit', {
+      objectIdentifier,
+      transactions,
+    });
+    results[requiredSubtype ?? 'default'] = result;
+  }
+
+  // Restore original subtype if we changed it
+  if (lastSubtype !== currentSubtype && currentSubtype !== undefined) {
+    await client.call('maniphest.edit', {
+      objectIdentifier,
+      transactions: [{ type: 'subtype', value: currentSubtype }],
+    });
+  }
+
+  return results;
+}
+
 export function registerManiphestTools(server: McpServer, client: ConduitClient) {
   // Search tasks
   server.tool(
@@ -66,7 +204,8 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       subtype: z.string().optional().describe('Task subtype (e.g. "default", "incident")'),
       parentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs'),
       subtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs'),
-      commitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to associate'),
+      commitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to associate (for actual commits only, not revisions)'),
+      revisionIDs: z.array(z.string()).optional().describe('Differential revision IDs to link (e.g. ["D223125"] or ["PHID-DREV-xxx"]). Creates a bidirectional link between the revision and the task.'),
       points: z.coerce.number().nullable().optional().describe('Story points value (if points are enabled on this instance)'),
       space: z.string().optional().describe('Space PHID to place the task in (for multi-space installations)'),
       comment: z.string().optional().describe('Initial comment on the task (supports Remarkup)'),
@@ -118,14 +257,31 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       if (params.comment !== undefined) {
         transactions.push({ type: 'comment', value: params.comment });
       }
-      if (params.customFields !== undefined) {
-        for (const [key, value] of Object.entries(params.customFields)) {
-          transactions.push({ type: key, value });
-        }
+      const result = await client.call<{ object: { phid: string; id: number } }>('maniphest.edit', { transactions });
+
+      const extras: Record<string, unknown> = {};
+
+      // Custom fields are applied in a second call because Phabricator validates
+      // transaction types against the default subtype during creation. Subtype-specific
+      // custom fields (e.g. postmortem fields) require temporarily switching the subtype.
+      if (params.customFields !== undefined && Object.keys(params.customFields).length > 0) {
+        extras.customFields = await applyCustomFields(
+          client,
+          result.object.phid,
+          params.customFields,
+          params.subtype,
+        );
       }
 
-      const result = await client.call('maniphest.edit', { transactions });
-      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+      // Link revisions to the newly created task via differential.revision.edit
+      if (params.revisionIDs !== undefined && params.revisionIDs.length > 0) {
+        const revPHIDs = await resolveRevisionPHIDs(client, params.revisionIDs);
+        const taskId = `T${result.object.id}`;
+        extras.linkedRevisions = await linkRevisionsToTask(client, taskId, revPHIDs, 'add');
+      }
+
+      const output = Object.keys(extras).length > 0 ? { ...result, ...extras } : result;
+      return { content: [{ type: 'text', text: JSON.stringify(output, null, 2) }] };
     },
   );
 
@@ -149,8 +305,10 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       removeParentPHIDs: z.array(z.string()).optional().describe('Parent task PHIDs to remove'),
       addSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to add'),
       removeSubtaskPHIDs: z.array(z.string()).optional().describe('Subtask PHIDs to remove'),
-      addCommitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to associate'),
-      removeCommitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to disassociate'),
+      addCommitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to associate (for actual commits only, not revisions)'),
+      removeCommitPHIDs: z.array(z.string()).optional().describe('Commit PHIDs to disassociate (for actual commits only, not revisions)'),
+      addRevisionIDs: z.array(z.string()).optional().describe('Differential revision IDs to link (e.g. ["D223125"] or ["PHID-DREV-xxx"]). Creates a bidirectional link between the revision and the task.'),
+      removeRevisionIDs: z.array(z.string()).optional().describe('Differential revision IDs to unlink (e.g. ["D223125"] or ["PHID-DREV-xxx"]).'),
       points: z.coerce.number().nullable().optional().describe('Story points value (null to clear)'),
       columnPHID: z.string().optional().describe('Move to workboard column'),
       space: z.string().optional().describe('Space PHID to move the task to (for multi-space installations)'),
@@ -222,21 +380,51 @@ export function registerManiphestTools(server: McpServer, client: ConduitClient)
       if (params.comment !== undefined) {
         transactions.push({ type: 'comment', value: params.comment });
       }
-      if (params.customFields !== undefined) {
-        for (const [key, value] of Object.entries(params.customFields)) {
-          transactions.push({ type: key, value });
-        }
-      }
+      const hasCustomFields = params.customFields !== undefined && Object.keys(params.customFields).length > 0;
+      const hasRevisionChanges =
+        (params.addRevisionIDs !== undefined && params.addRevisionIDs.length > 0) ||
+        (params.removeRevisionIDs !== undefined && params.removeRevisionIDs.length > 0);
 
-      if (transactions.length === 0) {
+      if (transactions.length === 0 && !hasCustomFields && !hasRevisionChanges) {
         return { content: [{ type: 'text', text: 'No changes specified' }] };
       }
 
-      const result = await client.call('maniphest.edit', {
-        objectIdentifier: params.objectIdentifier,
-        transactions,
-      });
-      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+      const extras: Record<string, unknown> = {};
+
+      let result: unknown = undefined;
+      if (transactions.length > 0) {
+        result = await client.call('maniphest.edit', {
+          objectIdentifier: params.objectIdentifier,
+          transactions,
+        });
+      }
+
+      // Custom fields may require subtype switching (e.g. postmortem fields
+      // need subtype "postmortem"). applyCustomFields handles this automatically.
+      if (hasCustomFields) {
+        extras.customFields = await applyCustomFields(
+          client,
+          params.objectIdentifier,
+          params.customFields!,
+          params.subtype,
+        );
+      }
+
+      // Link/unlink revisions via differential.revision.edit
+      if (params.addRevisionIDs !== undefined && params.addRevisionIDs.length > 0) {
+        const revPHIDs = await resolveRevisionPHIDs(client, params.addRevisionIDs);
+        extras.addedRevisions = await linkRevisionsToTask(client, params.objectIdentifier, revPHIDs, 'add');
+      }
+      if (params.removeRevisionIDs !== undefined && params.removeRevisionIDs.length > 0) {
+        const revPHIDs = await resolveRevisionPHIDs(client, params.removeRevisionIDs);
+        extras.removedRevisions = await linkRevisionsToTask(client, params.objectIdentifier, revPHIDs, 'remove');
+      }
+
+      const output = Object.keys(extras).length > 0
+        ? { ...(result !== undefined ? { task: result } : {}), ...extras }
+        : result;
+
+      return { content: [{ type: 'text', text: JSON.stringify(output, null, 2) }] };
     },
   );
 
