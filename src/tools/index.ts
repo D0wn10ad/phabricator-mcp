@@ -19,6 +19,7 @@ import { registerOwnersTools } from './owners.js';
 import { registerFeedTools } from './feed.js';
 import { registerConpherenceTools } from './conpherence.js';
 import { registerAuditTools } from './audit.js';
+import { registerEdgeTools } from './edge.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(join(__dirname, '..', '..', 'package.json'), 'utf-8'));
@@ -49,4 +50,5 @@ export function registerAllTools(server: McpServer, client: ConduitClient) {
   registerFeedTools(server, client);
   registerConpherenceTools(server, client);
   registerAuditTools(server, client);
+  registerEdgeTools(server, client);
 }
