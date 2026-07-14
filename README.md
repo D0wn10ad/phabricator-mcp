@@ -190,6 +190,8 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_column_search",
       "mcp__phabricator__phabricator_paste_search",
       "mcp__phabricator__phabricator_document_search",
+      "mcp__phabricator__phabricator_document_info",
+      "mcp__phabricator__phabricator_remarkup_process",
       "mcp__phabricator__phabricator_blog_search",
       "mcp__phabricator__phabricator_blog_post_search",
       "mcp__phabricator__phabricator_file_search",
@@ -207,7 +209,7 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_phid_lookup",
       "mcp__phabricator__phabricator_phid_query",
       "mcp__phabricator__phabricator_transaction_search",
-      "mcp__phabricator__phabricator_version"
+      "mcp__phabricator__phabricator_version",
       "mcp__phabricator__phabricator_edge_search"
     ]
   }
@@ -282,9 +284,11 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | Tool | Description |
 |------|-------------|
 | `phabricator_document_search` | Search wiki documents |
+| `phabricator_document_info` | Get metadata and content for a wiki document by slug |
 | `phabricator_document_create` | Create a new wiki document |
 | `phabricator_document_edit` | Edit a wiki document title or content |
 | `phabricator_document_add_comment` | Add a comment to a wiki document |
+| `phabricator_remarkup_process` | Render one or more Remarkup strings to HTML previews |
 
 ### Blogs (Phame)
 
@@ -406,6 +410,8 @@ Once connected, just ask your AI assistant to perform Phabricator tasks in natur
 
 **Wiki & Pastes**
 - "Find wiki pages about deployment"
+- "Show me the wiki page at projects/backend/"
+- "Render this Remarkup snippet to HTML in Phriction context"
 - "Create a paste with this error log"
 
 **Blogs**
