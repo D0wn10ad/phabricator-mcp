@@ -38,6 +38,18 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
     },
   );
 
+  server.tool(
+    'phabricator_document_info',
+    'Get metadata and content for a Phriction wiki document',
+    {
+      slug: z.string().describe('Document slug/path (e.g., "projects/myproject/")'),
+    },
+    async (params) => {
+      const result = await client.call('phriction.info', params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
   // Create wiki document
   server.tool(
     'phabricator_document_create',

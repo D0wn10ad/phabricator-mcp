@@ -190,6 +190,7 @@ Add to your `~/.claude/settings.json`:
       "mcp__phabricator__phabricator_column_search",
       "mcp__phabricator__phabricator_paste_search",
       "mcp__phabricator__phabricator_document_search",
+      "mcp__phabricator__phabricator_document_info",
       "mcp__phabricator__phabricator_blog_search",
       "mcp__phabricator__phabricator_blog_post_search",
       "mcp__phabricator__phabricator_file_search",
@@ -282,6 +283,7 @@ To allowlist all tools including write operations, use `"mcp__phabricator__*"` i
 | Tool | Description |
 |------|-------------|
 | `phabricator_document_search` | Search wiki documents |
+| `phabricator_document_info` | Get metadata and content for a wiki document |
 | `phabricator_document_create` | Create a new wiki document |
 | `phabricator_document_edit` | Edit a wiki document title or content |
 | `phabricator_document_add_comment` | Add a comment to a wiki document |
