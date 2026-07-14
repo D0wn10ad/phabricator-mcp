@@ -38,6 +38,7 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
     },
   );
 
+  // Conduit exposes document lookup via the legacy phriction.info endpoint.
   server.tool(
     'phabricator_document_info',
     'Get metadata and content for a Phriction wiki document',
