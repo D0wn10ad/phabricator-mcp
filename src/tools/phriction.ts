@@ -99,4 +99,17 @@ export function registerPhrictionTools(server: McpServer, client: ConduitClient)
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
+
+  server.tool(
+    'phabricator_remarkup_process',
+    'Process Remarkup content through Phabricator and return rendered HTML',
+    {
+      context: z.enum(['phriction', 'maniphest', 'differential', 'phame', 'feed', 'diffusion']).describe('Phabricator rendering context'),
+      contents: jsonCoerce(z.array(z.string())).describe('One or more Remarkup strings to process'),
+    },
+    async (params) => {
+      const result = await client.call('remarkup.process', params);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    },
+  );
 }
