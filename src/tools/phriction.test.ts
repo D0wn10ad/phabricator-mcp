@@ -1,6 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { z } from 'zod';
 import type { ConduitClient } from '../client/conduit.js';
 import { registerPhrictionTools } from './phriction.js';
 
@@ -47,10 +48,10 @@ describe('registerPhrictionTools', () => {
   });
 
   it('registers remarkup process and proxies requests to remarkup.process', async () => {
-    const tools: Array<{ name: string; handler: ToolHandler }> = [];
+    const tools: Array<{ name: string; schema: unknown; handler: ToolHandler }> = [];
     const server = {
-      tool(name: string, _description: string, _schema: unknown, handler: ToolHandler) {
-        tools.push({ name, handler });
+      tool(name: string, _description: string, schema: unknown, handler: ToolHandler) {
+        tools.push({ name, schema, handler });
       },
     } as unknown as McpServer;
 
@@ -66,10 +67,23 @@ describe('registerPhrictionTools', () => {
 
     assert.ok(remarkupProcess);
 
-    const response = await remarkupProcess.handler({
+    const remarkupProcessSchema = z.object(remarkupProcess.schema as z.ZodRawShape);
+
+    assert.ok(!remarkupProcessSchema.safeParse({ contents: ['= Title ='] }).success);
+    assert.ok(!remarkupProcessSchema.safeParse({ context: 'phriction' }).success);
+
+    for (const context of ['phriction', 'maniphest', 'differential', 'phame', 'feed', 'diffusion']) {
+      assert.ok(remarkupProcessSchema.safeParse({ context, contents: ['content'] }).success);
+    }
+
+    assert.ok(!remarkupProcessSchema.safeParse({ context: 'invalid', contents: ['content'] }).success);
+
+    const parsedParams = remarkupProcessSchema.parse({
       context: 'phriction',
-      contents: ['= Title =', 'Some **Remarkup** content'],
+      contents: JSON.stringify(['= Title =', 'Some **Remarkup** content']),
     });
+
+    const response = await remarkupProcess.handler(parsedParams);
 
     assert.deepStrictEqual(response, {
       content: [{
